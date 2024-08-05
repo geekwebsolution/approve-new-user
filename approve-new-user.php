@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name:       Approve New User
- * Plugin URI:        https://geekcodelab.com/
  * Description:       Approve New User plugin automates the user registration process on your WordPress website.
  * Version:           1.0.0
  * Author:            Geek Code Lab
