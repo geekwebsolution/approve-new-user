@@ -1,5 +1,5 @@
 <?php
-class Approve_New_User_List {
+class ANUIWP_User_List {
 
 	/**
 	 * Update the user status if the approve or deny link was clicked.
@@ -23,7 +23,7 @@ class Approve_New_User_List {
 			$status = ( !empty( $_GET['action']) ) ? sanitize_key( $_GET['action'] ): '';
 			$user   = ( !empty( $_GET['user']  ) ) ? absint( wp_unslash($_GET['user'] ) ) :'';
 
-			anu_approve_new_user()->update_user_status( $user, $status );
+			anuiwp_approve_new_user()->update_user_status( $user, $status );
 			
 			if ( $_GET['action'] == 'approve' ) {
 				$sendback = esc_url( add_query_arg( array( 'approved' => 1, 'ids' => $user ), $sendback )) ;
@@ -55,7 +55,7 @@ class Approve_New_User_List {
 			return $actions;
 		}
 
-		$user_status = anu_approve_new_user()->get_user_status( $user->ID );
+		$user_status = anuiwp_approve_new_user()->get_user_status( $user->ID );
 
 		$approve_link = add_query_arg( array( 'action' => 'approve', 'user' => $user->ID ) );
 		$approve_link = remove_query_arg( array( 'new_role' ), $approve_link );
@@ -88,7 +88,7 @@ class Approve_New_User_List {
 	 * @return array
 	 */
 	public function add_column( $columns ) {
-		$the_columns['anu_user_status'] = __( 'Status', 'approve-new-user' );
+		$the_columns['anuiwp_user_status'] = __( 'Status', 'approve-new-user' );
 
 		$newcol = array_slice( $columns, 0, -1 );
 		$newcol = array_merge( $newcol, $the_columns );
@@ -108,8 +108,8 @@ class Approve_New_User_List {
 	 */
 	public function status_column( $val, $column_name, $user_id ) {
 		switch ( $column_name ) {
-			case 'anu_user_status' :
-				$status = anu_approve_new_user()->get_user_status( $user_id );
+			case 'anuiwp_user_status' :
+				$status = anuiwp_approve_new_user()->get_user_status( $user_id );
 				if ( $status == 'approved' ) {
 					$status_i18n = __( 'approved', 'approve-new-user' );
 				} else if ( $status == 'denied' ) {
@@ -127,28 +127,6 @@ class Approve_New_User_List {
 	}
 
 	/**
-	 * Use javascript to add the ability to bulk modify the status of users.
-	 *
-	 * @uses admin_footer-users.php
-	 */
-	public function admin_footer() {
-		$screen = get_current_screen();
-
-		if ( $screen->id == 'users' ) : ?>
-			<script type="text/javascript">
-				jQuery(document).ready(function ($) {
-
-					$('<option>').val('approve').text('<?php esc_attr_e( 'Approve', 'approve-new-user' )?>').appendTo("select[name='action']");
-					$('<option>').val('approve').text('<?php esc_attr_e( 'Approve', 'approve-new-user' )?>').appendTo("select[name='action2']");
-
-					$('<option>').val('deny').text('<?php esc_attr_e( 'Deny', 'approve-new-user' )?>').appendTo("select[name='action']");
-					$('<option>').val('deny').text('<?php esc_attr_e( 'Deny', 'approve-new-user' )?>').appendTo("select[name='action2']");
-				});
-			</script>
-		<?php endif;
-	}
-
-	/**
 	 * Display the dropdown on the user profile page to allow an admin to update the user status.
 	 *
 	 * @uses show_user_profile
@@ -160,16 +138,16 @@ class Approve_New_User_List {
 			return;
 		}
 		$edit_user_nonce = wp_create_nonce('anu-edit-user-nonce');
-		$user_status = anu_approve_new_user()->get_user_status( $user->ID );
+		$user_status = anuiwp_approve_new_user()->get_user_status( $user->ID );
 		?>
 		<table class="form-table">
 			<tr>
-				<th><label for="approve_new_user_status"><?php esc_html_e( 'Access Status', 'approve-new-user' ); ?></label>
+				<th><label for="anuiwp_user_status"><?php esc_html_e( 'Access Status', 'approve-new-user' ); ?></label>
 				</th>
 				<td>
-					<input type="hidden" id="anu_edit_user_wpnonce" name="anu_edit_user_wpnonce" value="<?php echo esc_attr($edit_user_nonce); ?>" />
+					<input type="hidden" id="anuiwp_edit_user_wpnonce" name="anuiwp_edit_user_wpnonce" value="<?php echo esc_attr($edit_user_nonce); ?>" />
 					<input type="hidden" name="" value="<?php ?>">
-					<select id="approve_new_user_status" name="approve_new_user_status">
+					<select id="anuiwp_user_status" name="anuiwp_user_status">
 						<?php if ( $user_status == 'pending' ) : ?>
 							<option value=""><?php esc_html_e( '-- Status --', 'approve-new-user' ); ?></option>
 						<?php endif; ?>
@@ -182,7 +160,7 @@ class Approve_New_User_List {
 						class="description"><?php esc_html_e( 'If user has access to sign in or not.', 'approve-new-user' ); ?></span>
 					<?php if ( $user_status == 'pending' ) : ?>
 						<br/><span
-							class="description"><?php esc_html_e( 'Current user status is <strong>pending</strong>.', 'approve-new-user' ); ?></span>
+							class="description"><?php esc_html_e( 'Current user status is pending.', 'approve-new-user' ); ?></span>
 					<?php endif; ?>
 				</td>
 			</tr>
@@ -204,15 +182,15 @@ class Approve_New_User_List {
 		}
 		
         // if ( wp_verify_nonce($nonce) ) {return;}
-		if ( isset( $_POST['anu_edit_user_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['anu_edit_user_wpnonce'] ) ) , 'anu-edit-user-nonce' ) ) {
-			if ( !empty( $_POST['approve_new_user_status'] ) ) {
-				$new_status = sanitize_text_field( wp_unslash( $_POST['approve_new_user_status'] ) );
+		if ( isset( $_POST['anuiwp_edit_user_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['anuiwp_edit_user_wpnonce'] ) ) , 'anu-edit-user-nonce' ) ) {
+			if ( !empty( $_POST['anuiwp_user_status'] ) ) {
+				$new_status = sanitize_text_field( wp_unslash( $_POST['anuiwp_user_status'] ) );
 
 				if ( $new_status == 'approved' )
 					$new_status = 'approve'; else if ( $new_status == 'denied' )
 					$new_status = 'deny';
 
-				anu_approve_new_user()->update_user_status( $user_id, $new_status );
+				anuiwp_approve_new_user()->update_user_status( $user_id, $new_status );
 			}
 		}
 	}
@@ -225,10 +203,10 @@ class Approve_New_User_List {
 	public function pending_users_bubble() {
 		global $menu;
 
-		$users =get_option( 'approve_new_user_statuses_count',array());
+		$users =get_option( 'anuiwp_user_statuses_count',array());
 		if(empty($users))
 		{
-			$users = anu_approve_new_user()->_get_user_statuses(); 
+			$users = anuiwp_approve_new_user()->_get_user_statuses(); 
 		}
 
 		// Get the number of pending users

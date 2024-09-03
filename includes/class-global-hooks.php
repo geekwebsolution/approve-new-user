@@ -1,5 +1,5 @@
 <?php
-class Approve_New_User_Init {
+class ANUIWP_Init {
     /**
 	 * The ID of this plugin.
 	 */
@@ -24,7 +24,7 @@ class Approve_New_User_Init {
      */
     public function delete_approve_new_user_transient()
     {
-        delete_transient( 'approve_new_user_statuses' );
+        delete_transient( 'anuiwp_user_statuses' );
     }
 
     /**
@@ -44,12 +44,12 @@ class Approve_New_User_Init {
     public function admin_notices()
     {
         $user_id = get_current_user_id();
-        $show_notice = get_user_meta( $user_id, 'anu_approve_new_user_settings_notice' );
+        $show_notice = get_user_meta( $user_id, 'anuiwp_approve_new_user_settings_notice' );
         // one last chance to show the update
-        $show_notice = apply_filters( 'approve_new_user_show_membership_notice', $show_notice ,$user_id);
+        $show_notice = apply_filters( 'anuiwp_show_membership_notice', $show_notice ,$user_id);
         // Check that the user hasn't already clicked to ignore the message
         if ( !$show_notice ) {
-            $notice_nounce=wp_create_nonce('anu_notice_nounce');
+            $notice_nounce=wp_create_nonce('anuiwp_notice_nounce');
             echo  '<div class="error"><p>' ;
             printf( wp_kses_post( 'The Membership setting must be turned on in order for the New User Approve to work correctly. <a href="%1$s">Update in settings</a>. | <a href="%2$s">Hide Notice</a>') , esc_url( admin_url( 'options-general.php' ) ), esc_url(add_query_arg( array(
                 'approve-new-user-settings-notice' => 1,
@@ -72,26 +72,26 @@ class Approve_New_User_Init {
         $user_login = stripslashes( $user->data->user_login );
         $user_email = stripslashes( $user->data->user_email );
         // format the message
-        $message = anu_default_approve_user_message();
-        $message = anu_do_email_tags( $message, array(
+        $message = anuiwp_default_approve_user_message();
+        $message = anuiwp_do_email_tags( $message, array(
             'context'    => 'approve_user',
             'user'       => $user,
             'user_login' => $user_login,
             'user_email' => $user_email,
         ) );
-        $message = apply_filters( 'approve_approve_new_user_message', $message, $user );
+        $message = apply_filters( 'anuiwp_approve_new_user_message', $message, $user );
         /* translators: %s: search term */
         $subject = sprintf( __( '[%s] Registration Approved', 'approve-new-user' ), get_option( 'blogname' ) );
-        $subject = apply_filters( 'approve_approve_new_user_subject', $subject );
+        $subject = apply_filters( 'anuiwp_approve_new_user_subject', $subject );
         // send the mail
         wp_mail( $user_email, $subject, $message, $this->email_message_headers() );
         //to update statuses count
         $this->update_users_statuses_count('approved',$user_id );
 
         // change usermeta tag in database to approved
-        update_user_meta( $user->ID, 'anu_user_status', 'approved' );
+        update_user_meta( $user->ID, 'anuiwp_user_status', 'approved' );
 
-        do_action( 'approve_approve_new_userd', $user );
+        do_action( 'anuiwp__approve_new_user', $user );
     }
 
     /**
@@ -103,14 +103,14 @@ class Approve_New_User_Init {
         // send email to user telling of denial
         $user_email = stripslashes( $user->data->user_email );
         // format the message
-        $message = anu_default_deny_user_message();
-        $message = anu_do_email_tags( $message, array(
+        $message = anuiwp_default_deny_user_message();
+        $message = anuiwp_do_email_tags( $message, array(
             'context' => 'deny_user',
         ) );
-        $message = apply_filters( 'approve_new_user_deny_user_message', $message, $user );
+        $message = apply_filters( 'anuiwp_approve_new_user_deny_user_message', $message, $user );
         /* translators: %s: search term */
         $subject = sprintf( __( '[%s] Registration Denied', 'approve-new-user' ), get_option( 'blogname' ) );
-        $subject = apply_filters( 'approve_new_user_deny_user_subject', $subject );
+        $subject = apply_filters( 'anuiwp_approve_new_user_deny_user_subject', $subject );
         // send the mail
         wp_mail( $user_email, $subject, $message, $this->email_message_headers() );
     }
@@ -124,9 +124,9 @@ class Approve_New_User_Init {
         //to update statuses count
         $this->update_users_statuses_count('denied',$user_id );
         // change usermeta tag in database to denied
-        update_user_meta( $user->ID, 'anu_user_status', 'denied' );
+        update_user_meta( $user->ID, 'anuiwp_user_status', 'denied' );
 
-        do_action( 'approve_new_user_denied', $user );
+        do_action( 'anuiwp_approve_new_user_denied', $user );
     }
 
     /**
@@ -134,7 +134,7 @@ class Approve_New_User_Init {
      */
     public function update_admin_notice()
     {
-        if (isset($_GET['notice-nounce']) && wp_verify_nonce($_GET['notice-nounce'], 'anu_notice_nounce')) {
+        if (isset($_GET['notice-nounce']) && wp_verify_nonce( sanitize_text_field($_GET['notice-nounce']), 'anuiwp_notice_nounce' )) {
         // if the user isn't an admin, definitely don't show the notice
         if ( !current_user_can( 'manage_options' ) ) {
             return;
@@ -144,7 +144,7 @@ class Approve_New_User_Init {
             $user_id = get_current_user_id();
             add_user_meta(
                 $user_id,
-                'anu_approve_new_user_settings_notice',
+                'anuiwp_approve_new_user_settings_notice',
                 '1',
                 true
             );
@@ -160,8 +160,8 @@ class Approve_New_User_Init {
     public function login_user( $user_login, $user = null )
     {
         if ( $user != null && is_object( $user ) ) {
-            if ( !get_user_meta( $user->ID, 'anu_approve_new_user_has_signed_in' ) ) {
-                add_user_meta( $user->ID, 'anu_approve_new_user_has_signed_in', time() );
+            if ( !get_user_meta( $user->ID, 'anuiwp_approve_new_user_has_signed_in' ) ) {
+                add_user_meta( $user->ID, 'anuiwp_approve_new_user_has_signed_in', time() );
             }
         }
     }
@@ -176,15 +176,15 @@ class Approve_New_User_Init {
 
         if ( $status == 'pending' ) {
             $message = __( '<strong>ERROR</strong>: Your account is still pending approval.', 'approve-new-user' );
-            $message = apply_filters( 'approve_new_user_pending_error', $message );
+            $message = apply_filters( 'anuiwp_approve_new_user_pending_error', $message );
         } else {
             if ( $status == 'denied' ) {
                 $message = __( '<strong>ERROR</strong>: Your account has been denied access to this site.', 'approve-new-user' );
-                $message = apply_filters( 'approve_new_user_denied_error', $message );
+                $message = apply_filters( 'anuiwp_approve_new_user_denied_error', $message );
             }
         }
 
-        $message = apply_filters( 'approve_new_user_default_authentication_message', $message, $status );
+        $message = apply_filters( 'anuiwp_approve_new_user_default_authentication_message', $message, $status );
         return $message;
     }
 
@@ -193,7 +193,7 @@ class Approve_New_User_Init {
      */
     public function authenticate_user( $userdata )
     {
-        $status = anu_approve_new_user()->get_user_status( $userdata->ID );
+        $status = anuiwp_approve_new_user()->get_user_status( $userdata->ID );
         if ( empty($status) ) {
             // the user does not have a status so let's assume the user is good to go
             return $userdata;
@@ -228,20 +228,20 @@ class Approve_New_User_Init {
         }
         // create the user
         $user_pass = wp_generate_password( 12, false );
-        $user_pass = apply_filters('anu_pass_create_new_user', $user_pass);
+        $user_pass = apply_filters('anuiwp_pass_create_new_user', $user_pass);
         $user_id = wp_create_user( $user_login, $user_pass, $user_email );
         if ( !$user_id ) {
             /* translators: %s: search term */
-            $errors->add( 'registerfail', sprintf( __( '<strong>ERROR</strong>: Couldn&#8217;t register you... please contact the <a href="mailto:%s">webmaster</a> !' ), get_option( 'admin_email' ) ) );
+            $errors->add( 'registerfail', sprintf( __( '<strong>ERROR</strong>: Couldn&#8217;t register you... please contact the <a href="mailto:%s">webmaster</a> !', 'approve-new-user' ), get_option( 'admin_email' ) ) );
         } else {
             // User Registeration welcome email
-            $disable = apply_filters('anu_disable_welcome_email',false, $user_id);
+            $disable = apply_filters('anuiwp_disable_welcome_email',false, $user_id);
             if(false===$disable) {
-                $message = anu_default_registeration_welcome_email();
-                $message = apply_filters( 'approve_new_user_welcome_user_message', $message, $user_email );
+                $message = anuiwp_default_registeration_welcome_email();
+                $message = apply_filters( 'anuiwp_anuiwp_approve_new_user_welcome_user_message', $message, $user_email );
                 /* translators: %s: search term */
                 $subject = sprintf( __( 'Your registration is pending for approval - [%s]', 'approve-new-user' ), get_option( 'blogname' ) );
-                $subject = apply_filters( 'approve_new_user_welcome_user_subject', $subject );
+                $subject = apply_filters( 'anuiwp_anuiwp_approve_new_user_welcome_user_subject', $subject );
 
                 wp_mail( $user_email, $subject, $message, $this->email_message_headers() );
             }
@@ -257,7 +257,7 @@ class Approve_New_User_Init {
     {
         $nonce = '';
         if ( wp_verify_nonce($nonce) ) {return;}
-        $disable_redirect = apply_filters( 'anu_disable_redirect_to_field', false );
+        $disable_redirect = apply_filters( 'anuiwp_disable_redirect_to_field', false );
         if ( !empty($_POST['redirect_to']) && false === $disable_redirect ) {
             // if a redirect_to is set, honor it
             wp_safe_redirect( wp_unslash($_POST['redirect_to'] ));
@@ -268,14 +268,14 @@ class Approve_New_User_Init {
         if ( !empty($errors) && is_wp_error($errors) && $errors->get_error_code() ) {
             return  $errors;
         }
-        $message = anu_default_registration_complete_message();
-        $message = anu_do_email_tags( $message, array(
+        $message = anuiwp_default_registration_complete_message();
+        $message = anuiwp_do_email_tags( $message, array(
             'context' => 'pending_message',
         ) );
-        $message = apply_filters( 'approve_new_user_pending_message', $message );
+        $message = apply_filters( 'anuiwp_approve_new_user_pending_message', $message );
         $errors->add( 'registration_required', $message, 'message' );
         $success_message = __( 'Registration successful.', 'approve-new-user' );
-        $success_message = apply_filters( 'approve_new_user_registration_message', $success_message );
+        $success_message = apply_filters( 'anuiwp_approve_new_user_registration_message', $success_message );
 
         if ( function_exists( 'login_header' ) ) {
             login_header( __( 'Pending Approval', 'approve-new-user' ), '<p class="message register">' . $success_message . '</p>', $errors );
@@ -284,7 +284,7 @@ class Approve_New_User_Init {
             login_footer();
         }
 
-        do_action( 'approve_new_user_after_registration', $errors, $success_message );
+        do_action( 'anuiwp_approve_new_user_after_registration', $errors, $success_message );
 
         // an exit is necessary here so the normal process for user registration doesn't happen
         exit;
@@ -297,11 +297,11 @@ class Approve_New_User_Init {
     {
 
         if ( !isset( $_GET['action'] ) ) {
-            $welcome = anu_default_welcome_message();
-            $welcome = anu_do_email_tags( $welcome, array(
+            $welcome = anuiwp_default_welcome_message();
+            $welcome = anuiwp_do_email_tags( $welcome, array(
                 'context' => 'welcome_message',
             ) );
-            $welcome = apply_filters( 'approve_new_user_welcome_message', $welcome );
+            $welcome = apply_filters( 'anuiwp_approve_new_user_welcome_message', $welcome );
             if ( !empty($welcome) ) {
                 $message .= '<p class="message register">' . $welcome . '</p>';
             }
@@ -310,11 +310,11 @@ class Approve_New_User_Init {
         $nonce = '';
         if ( wp_verify_nonce($nonce) ) {return;}
         if ( isset( $_GET['action'] ) && $_GET['action'] == 'register' && !$_POST ) {
-            $instructions = anu_default_registration_message();
-            $instructions = anu_do_email_tags( $instructions, array(
+            $instructions = anuiwp_default_registration_message();
+            $instructions = anuiwp_do_email_tags( $instructions, array(
                 'context' => 'registration_message',
             ) );
-            $instructions = apply_filters( 'approve_new_user_register_instructions', $instructions );
+            $instructions = apply_filters( 'anuiwp_approve_new_user_register_instructions', $instructions );
             if ( !empty($instructions) ) {
                 $message .= '<p class="message register">' . $instructions . '</p>';
             }
@@ -326,16 +326,16 @@ class Approve_New_User_Init {
     /**
      * 
      */
-    public function anu_welcome_email_woo_new_user( $customer_id ) {
+    public function anuiwp_welcome_email_woo_new_user( $customer_id ) {
 
         $customer = new WC_Customer( $customer_id );
         $user_email = $customer->get_email();
-        $message = anu_default_registeration_welcome_email();
-        $message = apply_filters( 'approve_new_user_welcome_user_message', $message, $user_email );
+        $message = anuiwp_default_registeration_welcome_email();
+        $message = apply_filters( 'anuiwp_anuiwp_approve_new_user_welcome_user_message', $message, $user_email );
         /* translators: %s: search term */
         $subject = sprintf( __( 'Your registration is pending for approval - [%s]', 'approve-new-user' ), get_option( 'blogname' ) );
-        $subject = apply_filters( 'approve_new_user_welcome_user_subject', $subject );
-        $disable_welcome_email = apply_filters('disable_welcome_email_woo_new_user', array($this, false) );
+        $subject = apply_filters( 'anuiwp_anuiwp_approve_new_user_welcome_user_subject', $subject );
+        $disable_welcome_email = apply_filters('anuiwp_disable_welcome_email_woo_new_user', array($this, false) );
         if($disable_welcome_email===true) {
 
             return;
@@ -361,7 +361,7 @@ class Approve_New_User_Init {
             $user_data = get_user_by( 'email', $email );
         }
 
-        if ( isset($user_data) && is_object($user_data) && $user_data->anu_user_status && $user_data->anu_user_status != 'approved' ) {
+        if ( isset($user_data) && is_object($user_data) && $user_data->anuiwp_user_status && $user_data->anuiwp_user_status != 'approved' ) {
             $errors->add( 'unapproved_user', __( '<strong>ERROR</strong>: User has not been approved.', 'approve-new-user' ) );
         }
         return $errors;
@@ -372,7 +372,7 @@ class Approve_New_User_Init {
      */
     public function validate_status_update( $do_update, $user_id, $status )
     {
-        $current_status = anu_approve_new_user()->get_user_status( $user_id );
+        $current_status = anuiwp_approve_new_user()->get_user_status( $user_id );
 
         if ( $status == 'approve' ) {
             $new_status = 'approved';
@@ -406,10 +406,10 @@ class Approve_New_User_Init {
         if ( isset( $_REQUEST['action'] ) && 'createuser' == $_REQUEST['action'] ) {
             $status = 'approved';
         }
-        $status = apply_filters( 'approve_new_user_default_status', $status, $user_id );
+        $status = apply_filters( 'anuiwp_approve_new_user_default_status', $status, $user_id );
         //update user count
         $this->update_users_statuses_count( $status,$user_id );
-        update_user_meta( $user_id, 'anu_user_status', $status );
+        update_user_meta( $user_id, 'anuiwp_user_status', $status );
         
     }
 
@@ -430,25 +430,25 @@ class Approve_New_User_Init {
     public function admin_approval_email( $user_login, $user_email )
     {
         $default_admin_url = admin_url( 'users.php?s&anu-status-query-submit=Filter&approve_new_user_filter=pending&paged=1' );
-        $admin_url = apply_filters( 'approve_new_user_admin_link', $default_admin_url );
+        $admin_url = apply_filters( 'anuiwp_approve_new_user_admin_link', $default_admin_url );
         /* send email to admin for approval */
-        $message = apply_filters( 'approve_new_user_request_approval_message_default', anu_default_notification_message() );
-        $message = anu_do_email_tags( $message, array(
+        $message = apply_filters( 'anuiwp_anuiwp_approve_new_user_request_approval_message_default', anuiwp_default_notification_message() );
+        $message = anuiwp_do_email_tags( $message, array(
             'context'    => 'request_admin_approval_email',
             'user_login' => $user_login,
             'user_email' => $user_email,
             'admin_url'  => $admin_url,
         ) );
         $message = apply_filters(
-            'approve_new_user_request_approval_message',
+            'anuiwp_approve_new_user_request_approval_message',
             $message,
             $user_login,
             $user_email
         );
         /* translators: %s: search term */
         $subject = sprintf( __( '[%s] User Approval', 'approve-new-user' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );
-        $subject = apply_filters( 'approve_new_user_request_approval_subject', $subject );
-        $to = apply_filters( 'approve_new_user_email_admins', array( get_option( 'admin_email' ) ) );
+        $subject = apply_filters( 'anuiwp_approve_new_user_request_approval_subject', $subject );
+        $to = apply_filters( 'anuiwp_approve_new_user_email_admins', array( get_option( 'admin_email' ) ) );
         $to = array_unique( $to );
         // send the mail
         wp_mail( $to, $subject, $message, $this->email_message_headers() );
@@ -462,7 +462,7 @@ class Approve_New_User_Init {
         }
         $from_name = get_option( 'blogname' );
         $headers = array( "From: \"{$from_name}\" <{$admin_email}>\n" );
-        $headers = apply_filters( 'approve_new_user_email_header', $headers );
+        $headers = apply_filters( 'anuiwp_approve_new_user_email_header', $headers );
         return $headers;
     }
 
@@ -472,17 +472,17 @@ class Approve_New_User_Init {
      */
     public function update_users_statuses_count($new_status,$user_id)
     {
-        $old_status=get_user_meta( $user_id, 'anu_user_status',true);
+        $old_status=get_user_meta( $user_id, 'anuiwp_user_status',true);
 
         if( $old_status ==$new_status ){return;}
 
-        $user_statuses = get_option( 'approve_new_user_statuses_count',array());
+        $user_statuses = get_option( 'anuiwp_user_statuses_count',array());
         if(empty($user_statuses))
         {
-            $user_statuses = anu_approve_new_user()->_get_user_statuses();
+            $user_statuses = anuiwp_approve_new_user()->_get_user_statuses();
         }
  
-        foreach ( anu_approve_new_user()->get_valid_statuses() as $status ) { 
+        foreach ( anuiwp_approve_new_user()->get_valid_statuses() as $status ) { 
 
             if(isset($user_statuses[$status]) && $old_status == $status)
             {
@@ -494,7 +494,7 @@ class Approve_New_User_Init {
                 $user_statuses[$status]=$count+1;
             }
         }
-        update_option( 'approve_new_user_statuses_count', $user_statuses);
+        update_option( 'anuiwp_user_statuses_count', $user_statuses);
     }
 
     /**
@@ -514,11 +514,11 @@ class Approve_New_User_Init {
     {
         // destroying session when pending user trying to checkout
         $boolean = false;
-        $boolean = apply_filters( 'approve_new_user_woo_checkout_process_logout', $boolean );
+        $boolean = apply_filters( 'anuiwp_approve_new_user_woo_checkout_process_logout', $boolean );
         if( $boolean ) {
             if( is_user_logged_in() ) {
                 $user_id = get_current_user_id();
-                $user_status = get_user_meta($user_id, 'anu_user_status', true);
+                $user_status = get_user_meta($user_id, 'anuiwp_user_status', true);
                 if ( $user_status == 'denied' || $user_status == 'pending') {
                     wp_destroy_current_session();
                     wp_clear_auth_cookie();

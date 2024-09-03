@@ -3,8 +3,8 @@ Contributors: rajkakadiya
 Donate link: https://geekcodelab.com/
 Tags: comments, spam
 Requires at least: 7.4
-Tested up to: 6.6
-Stable tag: 1.0.0
+Tested up to: 6.6.1
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,5 +58,10 @@ After Plugin Active go to WooCommerce-> Donation.
 
 
 == Changelog ==
+= 1.0.1 =
+ Prefix updated for security reasons
+ Unused hooks enqueue script removed
+ Fixed missing sanitize in verify nonce 
+
 = 1.0.0 =
  Initial release

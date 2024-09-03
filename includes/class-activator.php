@@ -4,7 +4,7 @@
  *
  * This class defines all code necessary to run during the plugin's activation.
  */
-class Approve_New_User_Activator {
+class ANUIWP_Activator {
 
 	/**
 	 * Require a minimum version of WordPress on activation.
@@ -23,6 +23,6 @@ class Approve_New_User_Activator {
              exit( esc_html( $exit_msg ));
         }
         // since the right version of WordPress is being used, run a hook
-        do_action( 'approve_new_user_activate' );
+        do_action( 'anuiwp_approve_new_user_activate' );
 	}
 }

@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Approve New User
  * Description:       Approve New User plugin automates the user registration process on your WordPress website.
- * Version:           1.0.0
+ * Version:           1.0.1
  * Author:            Geek Code Lab
  * Author URI:        https://geekcodelab.com/
  * License:           GPLv2 or later
@@ -18,28 +18,18 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Currently plugin version.
  */
-define( 'APPROVE_NEW_USER_VERSION', '1.0.0' );
+define( 'ANUIWP_VERSION', '1.0.1' );
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-activator.php
  */
-function activate_approve_new_user() {
+function anuiwp_activation_hook() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-activator.php';
-	Approve_New_User_Activator::activate();
+	ANUIWP_Activator::activate();
 }
 
-/**
- * The code that runs during plugin deactivation.
- * This action is documented in includes/class-deactivator.php
- */
-function deactivate_approve_new_user() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-deactivator.php';
-	Approve_New_User_Deactivator::deactivate();
-}
-
-register_activation_hook( __FILE__, 'activate_approve_new_user' );
-register_deactivation_hook( __FILE__, 'deactivate_approve_new_user' );
+register_activation_hook( __FILE__, 'anuiwp_activation_hook' );
 
 /**
  * The core plugin class that is used to define admin-specific hooks, and public-facing site hooks.
@@ -55,12 +45,12 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-approve-new-user.php';
  *
  * @since    1.0.0
  */
-class ANU_Approve_New_User
+class ANUIWP_Approve_New_User
 {
     /**
-     * The only instance of ANU_Approve_New_User.
+     * The only instance of ANUIWP_Approve_New_User.
      *
-     * @var ANU_Approve_New_User
+     * @var ANUIWP_Approve_New_User
      */
     private static $instance;
 
@@ -74,20 +64,20 @@ class ANU_Approve_New_User
     /**
      * Returns the main instance.
      *
-     * @return ANU_Approve_New_User
+     * @return ANUIWP_Approve_New_User
      */
     public static function instance()
     {
         $settings = array(
             'plugin_name' => 'approve-new-user',
-            'version' => APPROVE_NEW_USER_VERSION,
+            'version' => ANUIWP_VERSION,
             'get_plugin_url' => plugin_dir_url(__FILE__),
             'get_plugin_dir' => plugin_dir_path(__FILE__)
         );
 
         if (!isset(self::$instance)) {
-            self::$instance = new ANU_Approve_New_User_Main($settings);
-            self::$instance->email_tags = new ANU_Email_Template_Tags();
+            self::$instance = new ANUIWP_Approve_New_User_Main($settings);
+            self::$instance->email_tags = new ANUIWP_Email_Template_Tags();
         }
 
         return self::$instance;
@@ -108,10 +98,10 @@ class ANU_Approve_New_User
 /**
  * Initialize the plugin and optionally run it.
  */
-function anu_approve_new_user($run = false)
+function anuiwp_approve_new_user($run = false)
 {
     // Initialize and store the instance
-    $plugin = ANU_Approve_New_User::instance();
+    $plugin = ANUIWP_Approve_New_User::instance();
 
     // Optionally run the plugin
     if ($run) {
@@ -122,4 +112,4 @@ function anu_approve_new_user($run = false)
 }
 
 // Call this only if you want to initialize and run the plugin
-anu_approve_new_user(true);
+anuiwp_approve_new_user(true);

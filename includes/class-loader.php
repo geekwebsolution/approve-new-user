@@ -2,7 +2,7 @@
 /**
  * Register all actions and filters for the plugin.
  */
-class Approve_New_User_Loader {
+class ANUIWP_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.
