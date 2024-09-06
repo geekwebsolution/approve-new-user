@@ -2,7 +2,8 @@
 Contributors: rajkakadiya
 Donate link: https://geekcodelab.com/
 Tags: comments, spam
-Requires at least: 7.4
+Requires PHP: 7.4
+Requires at least: 6.3
 Tested up to: 6.6.1
 Stable tag: 1.0.1
 License: GPLv2 or later
