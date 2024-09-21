@@ -127,6 +127,170 @@ class ANUIWP_User_List {
 	}
 
 	/**
+	 * Add a filter to the user table to filter by user status
+	 *
+	 * @uses restrict_manage_users
+	 */
+	public function status_filter( $which ) {
+		$id = 'approve_new_user_filter-' . $which;
+
+		$filter_button = submit_button( __( 'Filter', 'approve-new-user' ), 'button', 'anu-status-query-submit-'.$which, false, array( 'id' => 'anu-status-query-submit-'.$which ) );
+		$filtered_status = $this->selected_status();
+
+		?>
+		<label class="screen-reader-text" for="<?php echo esc_attr( $id) ?>"><?php esc_html_e( 'View all users', 'approve-new-user' ); ?></label>
+		<select id="<?php echo esc_attr($id) ?>" name="<?php echo esc_attr( $id )?>" style="float: none; margin: 0 0 0 15px;">
+			<option value="view_all"><?php esc_html_e( 'View all users', 'approve-new-user' ); ?></option>
+		<?php foreach ( anuiwp_approve_new_user()->get_valid_statuses() as $status ) : ?>
+			<option value="<?php echo esc_attr( $status ); ?>"<?php selected( $status, $filtered_status ); ?>><?php echo esc_html( $status ); ?></option>
+		<?php endforeach; ?>
+		</select>
+		<?php 
+		if(!empty($filter_button))
+		{
+			echo wp_kses_post( apply_filters( 'approve_new_user_filter_button', $filter_button ));
+		}
+		?>
+		<style>
+			#anu-status-query-submit-top,#anu-status-query-submit-bottom {
+				float: right;
+				margin: 2px 0 0 5px;
+			}
+		</style>
+		<?php
+	}
+
+	/**
+	 * Modify the user query if the status filter is being used.
+	 *
+	 * @uses pre_user_query
+	 * @param $query
+	 */
+    public function filter_by_status( $query ) {
+		global $wpdb;
+
+		if ( !is_admin() ) {
+			return;
+		}
+
+		if( !function_exists( 'get_current_screen' ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+
+		if ( isset( $screen ) && 'users' != $screen->id ) {
+			return;
+		}
+
+		if ( $this->selected_status() != null ) {
+			$filter = $this->selected_status();
+			//$sendback = admin_url( 'users.php' );
+
+			if($filter == 'view_all'){
+				//wp_redirect( $sendback );
+				return;
+			}
+			$query->query_from .= " INNER JOIN {$wpdb->usermeta} ON ( {$wpdb->users}.ID = $wpdb->usermeta.user_id )";
+
+			if ( 'approved' == $filter ) {
+				$query->query_fields = "DISTINCT SQL_CALC_FOUND_ROWS {$wpdb->users}.ID";
+				$query->query_from .= " LEFT JOIN {$wpdb->usermeta} AS mt1 ON ({$wpdb->users}.ID = mt1.user_id AND mt1.meta_key = 'anuiwp_user_status')";
+				$query->query_where .= " AND ( ( $wpdb->usermeta.meta_key = 'anuiwp_user_status' AND CAST($wpdb->usermeta.meta_value AS CHAR) = 'approved' ) OR mt1.user_id IS NULL )";
+			} else {
+				$query->query_where .= " AND ( ($wpdb->usermeta.meta_key = 'anuiwp_user_status' AND CAST($wpdb->usermeta.meta_value AS CHAR) = '{$filter}') )";
+			}
+		}
+	}
+
+	private function selected_status() {
+		if(isset($_REQUEST['anu-status-query-submit-bottom']) && !empty($_REQUEST['anu-status-query-submit-bottom']))
+		{
+			return esc_attr(
+				isset($_REQUEST['approve_new_user_filter-bottom']) && !empty($_REQUEST['approve_new_user_filter-bottom']) 
+				? sanitize_text_field( wp_unslash( $_REQUEST['approve_new_user_filter-bottom']))
+				: ''
+			);
+		}
+		elseif( isset( $_REQUEST['approve_new_user_filter-top'] ) &&  !empty( $_REQUEST['approve_new_user_filter-bottom'] ) ) {
+			return esc_attr(  sanitize_text_field( wp_unslash( $_REQUEST['approve_new_user_filter-top'])) );
+		}
+
+		return null;
+	}
+
+	/**
+	 * Process the bulk status updates
+	 *
+	 * @uses load-users.php
+	 */
+	public function bulk_action() {
+		$screen = get_current_screen();
+
+		if ( $screen->id == 'users' ) {
+
+			// get the action
+			$wp_list_table = _get_list_table( 'WP_Users_List_Table' );
+			$action = $wp_list_table->current_action();
+
+			$allowed_actions = array( 'approve', 'deny' );
+			if ( !in_array( $action, $allowed_actions ) ) {
+				return;
+			}
+
+			// security check
+			check_admin_referer( 'bulk-users' );
+
+			// make sure ids are submitted
+			if ( isset( $_REQUEST['users'] ) ) {
+				$user_ids = array_map( 'intval', $_REQUEST['users'] );
+			}
+
+			if ( empty( $user_ids ) ) {
+				return;
+			}
+
+			$sendback = remove_query_arg( array( 'approved', 'denied', 'deleted', 'ids', 'approve_new_user_filter', 'approve_new_user_filter2', 'anu-status-query-submit', 'new_role' ), wp_get_referer() );
+			if ( !$sendback ) {
+				$sendback = admin_url( 'users.php' );
+			}
+
+			$pagenum = $wp_list_table->get_pagenum();
+			$sendback = add_query_arg( 'paged', $pagenum, $sendback );
+
+			switch ( $action ) {
+				case 'approve':
+					$approved = 0;
+					foreach ( $user_ids as $user_id ) {
+						anuiwp_approve_new_user()->update_user_status( $user_id, 'approve' );
+						$approved++;
+					}
+
+					$sendback = add_query_arg( array( 'approved' => $approved, 'ids' => join( ',', $user_ids ) ), $sendback );
+					break;
+
+				case 'deny':
+					$denied = 0;
+					foreach ( $user_ids as $user_id ) {
+						anuiwp_approve_new_user()->update_user_status( $user_id, 'deny' );
+						$denied++;
+					}
+
+					$sendback = add_query_arg( array( 'denied' => $denied, 'ids' => join( ',', $user_ids ) ), $sendback );
+					break;
+
+				default:
+					return;
+			}
+
+			$sendback = remove_query_arg( array( 'action', 'action2', 'tags_input', 'post_author', 'comment_status', 'ping_status', '_status', 'post', 'bulk_edit', 'post_view' ), $sendback );
+
+			wp_redirect( esc_url($sendback) );
+			exit();
+		}
+	}
+
+	/**
 	 * Display the dropdown on the user profile page to allow an admin to update the user status.
 	 *
 	 * @uses show_user_profile
