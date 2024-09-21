@@ -44,7 +44,8 @@ class ANUIWP_Approve_New_User_Main {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-email-tags.php';	    // defining email tags
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-messages.php';	    // defining messages
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-loader.php';	        // actions and filters
-
+        
+        // require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-approve-users.php';	            // approve users list menu
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/admin-notifications.php';	    // admin notification settings
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/general-settings.php';	    // general settings
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/registration-settings.php';	// registration settings
@@ -94,7 +95,7 @@ class ANUIWP_Approve_New_User_Main {
         $admin_notifications_settings = new ANUIWP_Admin_Notifications_Settings_Hooks();
         $user_notifications_settings = new ANUIWP_User_Notifications_Hooks();
 
-        if(isset($pagenow) && $pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == "anuiwp-settings") {
+        if(isset($pagenow) && $pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == "anuiwp-setting") {
             $tab = (isset($_GET['tab']) && !empty($_GET['tab'])) ? $_GET['tab'] : null;
 
             if ($tab === null) {
@@ -125,8 +126,10 @@ class ANUIWP_Approve_New_User_Main {
     public function define_admin_hooks() {
         $plugin_admin_hooks = new ANUIWP_Admin_Hooks( $this->settings );
 
-        // $plugin = plugin_basename(__DIR__);
         $this->loader->add_filter("plugin_action_links_approve-new-user/approve-new-user.php", $plugin_admin_hooks, 'plugin_add_settings_link');
+
+        // Admin init
+        $this->loader->add_action( 'admin_init', $plugin_admin_hooks, 'process_user_data' );
 
         // Admin screen handled 
         $this->loader->add_action( 'admin_footer-users.php', $plugin_admin_hooks, 'admin_footer' );

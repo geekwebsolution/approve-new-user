@@ -72,7 +72,8 @@ class ANUIWP_Init {
         $user_login = stripslashes( $user->data->user_login );
         $user_email = stripslashes( $user->data->user_email );
         // format the message
-        $message = anuiwp_default_approve_user_message();
+        $user_notifications_options = anuiwp_user_notifications_options();
+        $message = (isset($user_notifications_options['user_approve_notification_message']) && !empty($user_notifications_options['user_approve_notification_message'])) ? $user_notifications_options['user_approve_notification_message'] : anuiwp_default_approve_user_message();
         $message = anuiwp_do_email_tags( $message, array(
             'context'    => 'approve_user',
             'user'       => $user,
@@ -81,7 +82,7 @@ class ANUIWP_Init {
         ) );
         $message = apply_filters( 'anuiwp_approve_new_user_message', $message, $user );
         /* translators: %s: search term */
-        $subject = anuiwp_approve_new_user_subject();
+        $subject = (isset($user_notifications_options['user_approve_notification_subject']) && !empty($user_notifications_options['user_approve_notification_subject'])) ? $user_notifications_options['user_approve_notification_subject'] : anuiwp_approve_new_user_subject();
 
         error_log("approve_user()!", 0);
         // send the mail
@@ -104,13 +105,14 @@ class ANUIWP_Init {
         // send email to user telling of denial
         $user_email = stripslashes( $user->data->user_email );
         // format the message
-        $message = anuiwp_default_deny_user_message();
+        $user_notifications_options = anuiwp_user_notifications_options();
+        $message = (isset($user_notifications_options['user_deny_notification_message']) && !empty($user_notifications_options['user_deny_notification_message'])) ? $user_notifications_options['user_deny_notification_message'] : anuiwp_default_deny_user_message();
         $message = anuiwp_do_email_tags( $message, array(
             'context' => 'deny_user',
         ) );
         $message = apply_filters( 'anuiwp_approve_new_user_deny_user_message', $message, $user );
         /* translators: %s: search term */
-        $subject = anuiwp_default_deny_user_subject();
+        $subject = (isset($user_notifications_options['user_deny_notification_subject']) && !empty($user_notifications_options['user_deny_notification_subject'])) ? $user_notifications_options['user_deny_notification_subject'] : anuiwp_default_deny_user_subject();
         error_log("deny_user()!", 0);
         // send the mail
         wp_mail( $user_email, $subject, $message, $this->email_message_headers() );
@@ -174,16 +176,12 @@ class ANUIWP_Init {
     public function default_authentication_message( $status )
     {
         $message = '';
-
-        if ( $status == 'pending' ) {
-            $message = anuiwp_approve_new_user_pending_error();
-            // $message = __( '<strong>ERROR</strong>: Your account is still pending approval.', 'approve-new-user' );
-            // $message = apply_filters( 'anuiwp_approve_new_user_pending_error', $message );
+        $registration_options = anuiwp_registration_options();
+        if ( $status == 'pending' ) {            
+            $message = (isset($registration_options['pending_error_message']) && !empty($registration_options['pending_error_message'])) ? $registration_options['pending_error_message'] : anuiwp_approve_new_user_pending_error();
         } else {
             if ( $status == 'denied' ) {
-                $message = anuiwp_approve_new_user_denied_error();
-                // $message = __( '<strong>ERROR</strong>: Your account has been denied access to this site.', 'approve-new-user' );
-                // $message = apply_filters( 'anuiwp_approve_new_user_denied_error', $message );
+                $message = (isset($registration_options['reject_error_message']) && !empty($registration_options['reject_error_message'])) ? $registration_options['reject_error_message'] : anuiwp_approve_new_user_denied_error();
             }
         }
 
@@ -240,10 +238,11 @@ class ANUIWP_Init {
             // User Registeration welcome email
             $disable = apply_filters('anuiwp_disable_welcome_email',false, $user_id);
             if(false===$disable) {
-                $message = anuiwp_default_registeration_welcome_email();
+                $user_notifications_options = anuiwp_user_notifications_options();
+                $message = (isset($user_notifications_options['user_welcome_notification_message']) && !empty($user_notifications_options['user_welcome_notification_message'])) ? $user_notifications_options['user_welcome_notification_message'] : anuiwp_default_registeration_welcome_email();
                 $message = apply_filters( 'anuiwp_approve_new_user_welcome_user_message', $message, $user_email );
                 /* translators: %s: search term */
-                $subject = anuiwp_default_registeration_welcome_email_subject();
+                $subject = (isset($user_notifications_options['user_welcome_notification_subject']) && !empty($user_notifications_options['user_welcome_notification_subject'])) ? $user_notifications_options['user_welcome_notification_subject'] : anuiwp_default_registeration_welcome_email_subject();
                 error_log("create_new_user()!", 0);
                 wp_mail( $user_email, $subject, $message, $this->email_message_headers() );
             }
@@ -270,7 +269,10 @@ class ANUIWP_Init {
         if ( !empty($errors) && is_wp_error($errors) && $errors->get_error_code() ) {
             return  $errors;
         }
-        $message = anuiwp_default_registration_complete_message();
+        
+        $registration_options = anuiwp_registration_options();
+        $message = (isset($registration_options['registration_complete_message']) && !empty($registration_options['registration_complete_message'])) ? $registration_options['registration_complete_message'] : anuiwp_default_registration_complete_message();
+
         $message = anuiwp_do_email_tags( $message, array(
             'context' => 'pending_message',
         ) );
@@ -297,9 +299,10 @@ class ANUIWP_Init {
      */
     public function welcome_user( $message )
     {
-
         if ( !isset( $_GET['action'] ) ) {
-            $welcome = anuiwp_default_welcome_message();
+            $registration_options = anuiwp_registration_options();
+            $welcome = (isset($registration_options['welcome_message']) && !empty($registration_options['welcome_message'])) ? $registration_options['welcome_message'] : anuiwp_default_welcome_message();
+
             $welcome = anuiwp_do_email_tags( $welcome, array(
                 'context' => 'welcome_message',
             ) );
@@ -312,7 +315,9 @@ class ANUIWP_Init {
         $nonce = '';
         if ( wp_verify_nonce($nonce) ) {return;}
         if ( isset( $_GET['action'] ) && $_GET['action'] == 'register' && !$_POST ) {
-            $instructions = anuiwp_default_registration_message();
+            $registration_options = anuiwp_registration_options();
+            $instructions = (isset($registration_options['registration_message']) && !empty($registration_options['registration_message'])) ? $registration_options['registration_message'] : anuiwp_default_registration_message();
+
             $instructions = anuiwp_do_email_tags( $instructions, array(
                 'context' => 'registration_message',
             ) );
@@ -432,7 +437,9 @@ class ANUIWP_Init {
         $default_admin_url = admin_url( 'users.php?s&anu-status-query-submit=Filter&approve_new_user_filter=pending&paged=1' );
         $admin_url = apply_filters( 'anuiwp_approve_new_user_admin_link', $default_admin_url );
         /* send email to admin for approval */
-        $message = apply_filters( 'anuiwp_approve_new_user_request_approval_message_default', anuiwp_default_notification_message() );
+        $admin_notifications_options = anuiwp_admin_notifications_options();
+        $message = (isset($admin_notifications_options['admin_notification_message']) && !empty($admin_notifications_options['admin_notification_message'])) ? $admin_notifications_options['admin_notification_message'] : anuiwp_default_notification_message();
+
         $message = anuiwp_do_email_tags( $message, array(
             'context'    => 'request_admin_approval_email',
             'user_login' => $user_login,
@@ -446,7 +453,7 @@ class ANUIWP_Init {
             $user_email
         );
         /* translators: %s: search term */
-        $subject = anuiwp_default_notification_subject();
+        $subject = (isset($admin_notifications_options['admin_notification_subject']) && !empty($admin_notifications_options['admin_notification_subject'])) ? $admin_notifications_options['admin_notification_subject'] : anuiwp_default_notification_subject();
         $to = apply_filters( 'anuiwp_approve_new_user_email_admins', array( get_option( 'admin_email' ) ) );
         $to = array_unique( $to );
         error_log("admin_approval_email()!", 0);
@@ -526,6 +533,5 @@ class ANUIWP_Init {
                 }
             }
         }
-
     }
 }

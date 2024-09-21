@@ -49,17 +49,6 @@ class ANUIWP_General_Settings_Hooks {
 		);
 
 		add_settings_field(
-			'hide_legacy_panel',
-			__('Hide legacy panel', 'approve-new-user'),
-			array($this, 'switch_field_html'),
-			'anuiwp_general_settings_section',
-			'anuiwp_general_setting',
-			[
-				'label_for'     => 'hide_legacy_panel',
-			]
-		);
-
-		add_settings_field(
 			'change_the_sender_email',
 			__('Change the Admin/Sender Email', 'approve-new-user'),
 			array($this, 'text_field_html'),
@@ -94,16 +83,12 @@ class ANUIWP_General_Settings_Hooks {
 	public function sanitize_settings($input) {
 		$new_input = array();
 
-		if (isset($input['hide_sale_flash'])) {
-			$new_input['hide_sale_flash'] = sanitize_text_field($input['hide_sale_flash']);
+		if (isset($input['hide_dashboard_stats'])) {
+			$new_input['hide_dashboard_stats'] = sanitize_text_field($input['hide_dashboard_stats']);
 		}
 
-		if (isset($input['hide_add_to_cart'])) {
-			$new_input['hide_add_to_cart'] = sanitize_text_field($input['hide_add_to_cart']);
-		}
-
-		if (isset($input['sale_flash_label'])) {
-			$new_input['sale_flash_label'] = sanitize_text_field($input['sale_flash_label']);
+		if (isset($input['change_the_sender_email'])) {
+			$new_input['change_the_sender_email'] = sanitize_text_field($input['change_the_sender_email']);
 		}
 
 		return $new_input;

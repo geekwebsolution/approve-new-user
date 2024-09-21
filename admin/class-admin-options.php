@@ -22,20 +22,29 @@ class ANUIWP_Admin_Options_Hooks {
      * 
      */
     public function admin_menu_page() {
-        // echo "Heeelo"; die;
+
         add_menu_page( 
             __( 'Approve New User', 'approve-new-user' ),
             __( 'Approve New User', 'approve-new-user' ),
             'manage_options',
-            'anuiwp-settings',
-            array($this, 'settings_menu_page'),
+            'anuiwp-menu-page',
+            array($this, 'users_list_menu_page'),
             'dashicons-yes-alt',
             70
         ); 
+
+        add_submenu_page('anuiwp-menu-page', __('Settings', 'approve-new-user'), __('Settings', 'approve-new-user'), 'manage_options', 'anuiwp-settings', array($this, 'settings_menu_page'));
     }
 
     /**
-     * 
+     * Approve New User List. Pending, Approved and Denied Users
+     */
+    public function users_list_menu_page() {
+        include( plugin_dir_path( __DIR__ ) . 'admin/class-approve-users.php' );
+    }
+
+    /**
+     * Approve New Users Settings
      */
     public function settings_menu_page() {
         $default_tab = null;

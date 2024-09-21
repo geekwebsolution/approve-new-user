@@ -121,7 +121,7 @@ function anuiwp_default_notification_message() {
 	$message .= __( 'To approve or deny this user access to {sitename} go to', 'approve-new-user' ) . "\n\n";
 	$message .= "{admin_approve_url}\n\n";
 
-	$message = apply_filters( 'anuiwp_approve_new_user_notification_message_default', $message );
+	$message = apply_filters( 'anuiwp_approve_new_user_request_approval_message_default', $message );
 
 	return $message;
 }
