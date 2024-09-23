@@ -37,7 +37,7 @@ class ANUIWP_New_Users_List extends WP_List_Table {
                     $edit_link = add_query_arg('wp_http_referer', urlencode(esc_url($SERVER_URI)), "user-edit.php?user_id=$user_ID");
                 }
 
-                $edit = ($avatar == true) ? ('<strong><a class="anuiwp_users_edit_links" href="' . esc_url($edit_link) . '">' . esc_html($item->data->user_login) . '</a></strong>') : ('<strong><a href="' . esc_url($edit_link) . '">' . esc_html($item->data->user_login) . '</a></strong>');
+                $edit = ($avatar == true) ? ('<strong style="position: relative;top: -17px;left: 10px;"><a class="anuiwp_users_edit_links" href="' . esc_url($edit_link) . '">' . esc_html($item->data->user_login) . '</a></strong>') : ('<strong><a href="' . esc_url($edit_link) . '">' . esc_html($item->data->user_login) . '</a></strong>');
 
                 echo wp_kses_post($avatar . ' ' . $edit);
                 break;
@@ -45,7 +45,7 @@ class ANUIWP_New_Users_List extends WP_List_Table {
                 echo (esc_attr(get_user_meta($user_ID, 'first_name', true)) . ' ' . esc_attr(get_user_meta($user_ID, 'last_name', true)));                
                 break;
             case 'user_email':
-                echo sprintf('<a href="mailto:%s" title="%s">%s</a>', esc_attr($item->data->user_email), esc_attr('email:', 'new-user-approve') . esc_attr($item->data->user_email), esc_attr($item->data->user_email));
+                echo sprintf('<a href="mailto:%s" title="%s">%s</a>', esc_attr($item->data->user_email), esc_attr('email:', 'approve-new-user') . esc_attr($item->data->user_email), esc_attr($item->data->user_email));
                 break;
             case 'action':
                 $approve = ('denied' == $status || 'pending' == $status);
@@ -151,7 +151,7 @@ class ANUIWP_New_Users_List extends WP_List_Table {
     /** Wp Table Initialization */
     function prepare_items() {
 
-        $per_page = 2;
+        $per_page = 15;
 
         $columns = $this->get_columns();
         $hidden = array();
@@ -178,38 +178,41 @@ $search_query = isset($_GET['anuiwp_search_box']) ? sanitize_text_field($_GET['a
     <div id="poststuff">
         <div id="post-body" class="metabox-holder">
             <div id="post-body-content">
-                <div class="meta-box-sortables ui-sortable">
-                    
-                    <h3 class="nav-tab-wrapper">
-                        <?php
-                        $active_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'pending_users';
-                        $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
-                        $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : '';
-                        $search_query = isset($_GET['anuiwp_search_box']) ? sanitize_text_field($_GET['anuiwp_search_box']) : '';
-                        ?>
-                        <form id="anuiwp_search_form" method="get" style="float: right;">
-                            <input type="search" name="anuiwp_search_box" id="anuiwp_search_box" placeholder="Search" data-list=".anuiwp-user-list" value="<?php echo esc_attr($search_query); ?>">
-                            <input type="hidden" name="page" value="<?php echo esc_attr($page); ?>" />
-                            <?php if (!empty($tab)) : ?>
-                                <input type="hidden" name="tab" value="<?php echo esc_attr($tab); ?>" />
-                            <?php endif; ?>
-                            <input type="submit" value="Search" id="anuiwp-search-btn" name="anuiwp-search-btn" />
-                        </form> 
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=anuiwp-menu-page&tab=pending_users')); ?>"
-                            class="nav-tab<?php echo $active_tab == 'pending_users' ? ' nav-tab-active' : ''; ?>"><span><?php esc_html_e('Pending Users', 'new-user-approve');?></span></a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=anuiwp-menu-page&tab=approved_users')); ?>"
-                        class="nav-tab<?php echo $active_tab == 'approved_users' ? ' nav-tab-active' : ''; ?>"><span><?php esc_html_e('Approved Users', 'new-user-approve');?></span></a>
-                        <a href="<?php echo esc_url(admin_url('admin.php?page=anuiwp-menu-page&tab=denied_users')); ?>"
-                        class="nav-tab<?php echo $active_tab == 'denied_users' ? ' nav-tab-active' : ''; ?>"><span><?php esc_html_e('Denied Users', 'new-user-approve');?></span></a>
-                    </h3>
-
-                    <form id="approve-users-list" method="get">
-                            <input type="hidden" name="page" value="<?php _e($_REQUEST['page']); ?>" />
-                            <?php 
-                                $usersListTable = new ANUIWP_New_Users_List();
-                                $usersListTable->prepare_items();
-                                $usersListTable->display();
+                <div class="anuiwp-box">
+                    <div class="anuiwp-option-section">
+                        <div class="anuiwp-tabbing-box">
+                            <?php
+                            $active_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'pending_users';
+                            $page = isset($_GET['page']) ? sanitize_text_field($_GET['page']) : '';
+                            $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : '';
+                            $search_query = isset($_GET['anuiwp_search_box']) ? sanitize_text_field($_GET['anuiwp_search_box']) : '';
                             ?>
+                            <form id="anuiwp_search_form" method="get" style="float: right;">
+                                <input type="search" name="anuiwp_search_box" id="anuiwp_search_box" placeholder="Search" data-list=".anuiwp-user-list" value="<?php echo esc_attr($search_query); ?>">
+                                <input type="hidden" name="page" value="<?php echo esc_attr($page); ?>" />
+                                <?php if (!empty($tab)) : ?>
+                                    <input type="hidden" name="tab" value="<?php echo esc_attr($tab); ?>" />
+                                <?php endif; ?>
+                                <input type="submit" class="button-primary" value="Search" id="anuiwp-search-btn" name="anuiwp-search-btn" />
+                            </form>
+                            <ul class="anuiwp-tab-list">
+                                <li><a href="<?php echo esc_url(admin_url('admin.php?page=anuiwp-menu-page&tab=pending_users')); ?>"
+                                class="nav-tab<?php echo $active_tab == 'pending_users' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Pending Users', 'approve-new-user');?></a></li>
+                                <li><a href="<?php echo esc_url(admin_url('admin.php?page=anuiwp-menu-page&tab=approved_users')); ?>"
+                                class="nav-tab<?php echo $active_tab == 'approved_users' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Approved Users', 'approve-new-user');?></a></li>
+                                <li><a href="<?php echo esc_url(admin_url('admin.php?page=anuiwp-menu-page&tab=denied_users')); ?>"
+                                class="nav-tab<?php echo $active_tab == 'denied_users' ? ' nav-tab-active' : ''; ?>"><?php esc_html_e('Denied Users', 'approve-new-user');?></a></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <form id="anuiwp-users-list" method="get">
+                        <input type="hidden" name="page" value="<?php _e($_REQUEST['page']); ?>" />
+                        <?php 
+                            $usersListTable = new ANUIWP_New_Users_List();
+                            $usersListTable->prepare_items();
+                            $usersListTable->display();
+                        ?>
                     </form>
                 </div>
             </div>

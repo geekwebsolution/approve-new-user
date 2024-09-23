@@ -50,6 +50,7 @@ class ANUIWP_Admin_Options_Hooks {
         $default_tab = null;
         $tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : $default_tab;
         ?>
+        <?php settings_errors(); ?>
             <div class="anuiwp-main-box">
                 <div class="anuiwp-container">
                     <div class="anuiwp-header">
@@ -57,12 +58,12 @@ class ANUIWP_Admin_Options_Hooks {
                             <div class="anuiwp-option-section">
 
                                 <div class="anuiwp-tabbing-box">
-                                    <div class="anuiwp-tab-list">
-                                        <li><a href="?page=anuiwp-settings" class="nav-tab <?php if ($tab === null) : ?>nav-tab-active<?php endif; ?>"><?php _e('Product Loop Setting', 'approve-new-user'); ?></a></li>
-                                        <li><a href="?page=anuiwp-settings&tab=anuiwp-registration-settings" class="nav-tab <?php if ($tab === 'anuiwp-registration-settings') : ?>nav-tab-active<?php endif; ?>"><?php _e('Registration Settings', 'approve-new-user'); ?></a></li>
+                                    <ul class="anuiwp-tab-list">
+                                        <li><a href="?page=anuiwp-settings" class="nav-tab <?php if ($tab === null) : ?>nav-tab-active<?php endif; ?>"><?php _e('General Settings', 'approve-new-user'); ?></a></li>
+                                        <li><a href="?page=anuiwp-settings&tab=anuiwp-registration-settings" class="nav-tab <?php if ($tab === 'anuiwp-registration-settings') : ?>nav-tab-active<?php endif; ?>"><?php _e('Registration Notifications', 'approve-new-user'); ?></a></li>
                                         <li><a href="?page=anuiwp-settings&tab=anuiwp-admin-notifications" class="nav-tab <?php if ($tab === 'anuiwp-admin-notifications') : ?>nav-tab-active<?php endif; ?>"><?php _e('Admin Notifications', 'approve-new-user'); ?></a></li>
                                         <li><a href="?page=anuiwp-settings&tab=anuiwp-user-notifications" class="nav-tab <?php if ($tab === 'anuiwp-user-notifications') : ?>nav-tab-active<?php endif; ?>"><?php _e('User Notifications', 'approve-new-user'); ?></a></li>
-                                    </div>
+                                    </ul>
                                 </div>
 
                                 <div class="anuiwp-tabing-option">

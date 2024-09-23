@@ -43,7 +43,7 @@ class ANUIWP_Admin_Notifications_Settings_Hooks {
 		add_settings_field(
 			'send_notifications_emails_to_all_admin',
 			__('Send notification emails to all admins', 'approve-new-user'),
-			array($this, 'switch_field_html'),
+			array($this, 'send_notifications_emails_html'),
 			'anuiwp_admin_notifications_settings_section',
 			'anuiwp_admin_notifications_setting',
 			[
@@ -54,7 +54,7 @@ class ANUIWP_Admin_Notifications_Settings_Hooks {
 		add_settings_field(
 			'dont_send_notifications_to_admin',
 			__("Don't send notification emails to current site admin", 'approve-new-user'),
-			array($this, 'switch_field_html'),
+			array($this, 'dont_send_notifications_to_admin_html'),
 			'anuiwp_admin_notifications_settings_section',
 			'anuiwp_admin_notifications_setting',
 			[
@@ -93,7 +93,7 @@ class ANUIWP_Admin_Notifications_Settings_Hooks {
 		);
 	}
 
-	public function switch_field_html($args){
+	public function send_notifications_emails_html($args){
 		$anuiwp_admin_notifications_options = anuiwp_admin_notifications_options();
 		$value = isset($anuiwp_admin_notifications_options[$args['label_for']]) ? $anuiwp_admin_notifications_options[$args['label_for']] : '';
 		?>
@@ -101,6 +101,19 @@ class ANUIWP_Admin_Notifications_Settings_Hooks {
 			<input type="checkbox" class="anuiwp-checkbox" name="anuiwp_admin_notifications_options[<?php esc_attr_e( $args['label_for'] ); ?>]" id="<?php esc_attr_e( $args['label_for'] ); ?>" value="on" <?php if($value == "on"){ _e('checked'); } ?>>
 			<span class="anuiwp-slider anuiwp-round"></span>
 		</label>
+		<p class="anuiwp-input-note"><?php esc_html_e('By default, only the site admin will be notified when a user is awaiting approval. Checking this option will send the notification to all users with admin access.','approve-new-user'); ?></p>
+		<?php
+	}
+
+	public function dont_send_notifications_to_admin_html($args){
+		$anuiwp_admin_notifications_options = anuiwp_admin_notifications_options();
+		$value = isset($anuiwp_admin_notifications_options[$args['label_for']]) ? $anuiwp_admin_notifications_options[$args['label_for']] : '';
+		?>
+		<label class="anuiwp-switch">
+			<input type="checkbox" class="anuiwp-checkbox" name="anuiwp_admin_notifications_options[<?php esc_attr_e( $args['label_for'] ); ?>]" id="<?php esc_attr_e( $args['label_for'] ); ?>" value="on" <?php if($value == "on"){ _e('checked'); } ?>>
+			<span class="anuiwp-slider anuiwp-round"></span>
+		</label>
+		<p class="anuiwp-input-note"><?php echo get_option( 'admin_email' ); ?></p>
 		<?php
 	}
 
@@ -117,6 +130,16 @@ class ANUIWP_Admin_Notifications_Settings_Hooks {
 		$value = isset($anuiwp_admin_notifications_options[$args['label_for']]) ? $anuiwp_admin_notifications_options[$args['label_for']] : '';
 		?>
 		<textarea name="anuiwp_admin_notifications_options[<?php esc_attr_e( $args['label_for'] ); ?>]" id="<?php esc_attr_e( $args['label_for'] ); ?>" class="anuiwp_content"><?php echo wp_unslash($value); ?></textarea>
+		<p class="anuiwp-input-note"><?php esc_html_e('This message is sent to the site admin when a user registers for the site. Customizations can be made to the message above using the following email tags:','approve-new-user'); ?></p>
+		<br>
+		<p class="anuiwp-input-note"><strong>{username}</strong> - <?php esc_html_e("The user's username on the site as well as the Username label","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{user_email}</strong> - <?php esc_html_e("The user's email address","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{sitename}</strong> - <?php esc_html_e("Your site name","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{site_url}</strong> - <?php esc_html_e("Your site URL","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{admin_approve_url}</strong> - <?php esc_html_e("The URL to approve/deny users","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{login_url}</strong> - <?php esc_html_e("The URL to login to the site","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{reset_password_url}</strong> - <?php esc_html_e("The URL for a user to set/reset their password","approve-new-user"); ?></p>
+		<p class="anuiwp-input-note"><strong>{password}</strong> - <?php esc_html_e("Generates the password for the user to add to the email","approve-new-user"); ?></p>
 		<?php
 	}
 
@@ -136,7 +159,7 @@ class ANUIWP_Admin_Notifications_Settings_Hooks {
 		}
 
 		if (isset($input['admin_notification_message'])) {
-			$new_input['admin_notification_message'] = htmlentities($input['admin_notification_message']);
+			$new_input['admin_notification_message'] = $input['admin_notification_message'];
 		}
 
 		return $new_input;

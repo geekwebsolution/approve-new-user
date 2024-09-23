@@ -1,6 +1,4 @@
 <?php
-$anuiwp_general_options = get_option('anuiwp_general_options');
-
 class ANUIWP_General_Settings_Hooks {
 
 	public function __construct(){       
@@ -12,7 +10,7 @@ class ANUIWP_General_Settings_Hooks {
 
 			<?php settings_fields('anuiwp-general-options'); ?>
 
-			<div class="wspc-section">				
+			<div class="anuiwp-section">				
 				<?php do_settings_sections('anuiwp_general_settings_section'); ?>
 			</div>
 
@@ -45,6 +43,7 @@ class ANUIWP_General_Settings_Hooks {
 			'anuiwp_general_setting',
 			[
 				'label_for'     => 'hide_dashboard_stats',
+				'description'   => "Remove this plugin's stats from the admin dashboard."
 			]
 		);
 
@@ -56,27 +55,30 @@ class ANUIWP_General_Settings_Hooks {
 			'anuiwp_general_setting',
 			[
 				'label_for' => 'change_the_sender_email',
-				'placeholder' => get_option( 'admin_email' )
+				'placeholder' => get_option( 'admin_email' ),
+				'description'   => "Change the admin/sender Email."
 			]
 		);
 	}
 
 	public function switch_field_html($args){
-		global $anuiwp_general_options;
+		$anuiwp_general_options = anuiwp_general_options();
 		$value = isset($anuiwp_general_options[$args['label_for']]) ? $anuiwp_general_options[$args['label_for']] : '';
 		?>
 		<label class="anuiwp-switch">
 			<input type="checkbox" class="anuiwp-checkbox" name="anuiwp_general_options[<?php esc_attr_e( $args['label_for'] ); ?>]" id="<?php esc_attr_e( $args['label_for'] ); ?>" value="on" <?php if($value == "on"){ _e('checked'); } ?>>
 			<span class="anuiwp-slider anuiwp-round"></span>
 		</label>
+		<p class="anuiwp-input-note"><?php esc_attr_e($args['description'],'approve-new-user') ?></p>
 		<?php
 	}
 
 	public function text_field_html($args){
-		global $anuiwp_general_options;
+		$anuiwp_general_options = anuiwp_general_options();
 		$value = isset($anuiwp_general_options[$args['label_for']]) ? $anuiwp_general_options[$args['label_for']] : '';
 		?>
 		<input type="text" name="anuiwp_general_options[<?php esc_attr_e( $args['label_for'] ); ?>]" id="<?php esc_attr_e( $args['label_for'] ); ?>" value="<?php _e($value); ?>" placeholder="<?php esc_attr_e( isset($args['placeholder']) ? $args['placeholder'] : "" ); ?>">
+		<p class="anuiwp-input-note"><?php esc_attr_e($args['description'],'approve-new-user') ?></p>
 		<?php
 	}
 

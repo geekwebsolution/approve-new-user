@@ -44,8 +44,7 @@ class ANUIWP_Approve_New_User_Main {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-email-tags.php';	    // defining email tags
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-messages.php';	    // defining messages
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-loader.php';	        // actions and filters
-        
-        // require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-approve-users.php';	            // approve users list menu
+
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/admin-notifications.php';	    // admin notification settings
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/general-settings.php';	    // general settings
         require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/registration-settings.php';	// registration settings
@@ -55,6 +54,7 @@ class ANUIWP_Approve_New_User_Main {
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-admin.php';	            // users menu page actions
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/user-list.php';	    // users menu page actions
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-global-hooks.php';	// global hooks
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-memberpress.php';	    // global hooks
 
 		$this->loader = new ANUIWP_Loader();
 	}
@@ -148,7 +148,7 @@ class ANUIWP_Approve_New_User_Main {
 
 		// Delete the transient storing all of the user statuses
 		$this->loader->add_action( 'user_register', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 ); 
-		$this->loader->add_action( 'anuiwp__approve_new_user', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 );
+		$this->loader->add_action( 'anuiwp_approve_user', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 );
 		$this->loader->add_action( 'anuiwp_deny_user', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 );
 		$this->loader->add_action( 'deleted_user', $plugin_global_hooks, 'delete_approve_new_user_transient' );
 

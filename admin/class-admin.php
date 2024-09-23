@@ -126,7 +126,7 @@ class ANUIWP_Admin_Hooks {
 		$support_link = '<a href="https://geekcodelab.com/contact/"  target="_blank" >' . __('Support','approve-new-user') . '</a>';
 		array_unshift($links, $support_link);
 
-		$settings_link = '<a href="admin.php?page=anuiwp-menu-page">' . __('Settings','approve-new-user') . '</a>';
+		$settings_link = '<a href="admin.php?page=anuiwp-settings">' . __('Settings','approve-new-user') . '</a>';
 		array_unshift($links, $settings_link);
 		return $links;
 	}

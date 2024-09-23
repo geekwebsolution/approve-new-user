@@ -11,7 +11,7 @@ class ANUIWP_User_List {
 			
 			check_admin_referer( 'approve-new-user' );
 
-			$sendback = esc_url( remove_query_arg( array( 'approved', 'denied', 'deleted', 'ids', 'anu-status-query-submit', 'new_role' ), wp_get_referer() ));
+			$sendback = esc_url( remove_query_arg( array( 'approved', 'denied', 'deleted', 'ids', 'anuiwp-status-query-submit', 'new_role' ), wp_get_referer() ));
 			if ( !$sendback )
 				$sendback = admin_url( 'users.php' );
 
@@ -134,7 +134,7 @@ class ANUIWP_User_List {
 	public function status_filter( $which ) {
 		$id = 'approve_new_user_filter-' . $which;
 
-		$filter_button = submit_button( __( 'Filter', 'approve-new-user' ), 'button', 'anu-status-query-submit-'.$which, false, array( 'id' => 'anu-status-query-submit-'.$which ) );
+		$filter_button = submit_button( __( 'Filter', 'approve-new-user' ), 'button', 'anuiwp-status-query-submit-'.$which, false, array( 'id' => 'anuiwp-status-query-submit-'.$which ) );
 		$filtered_status = $this->selected_status();
 
 		?>
@@ -142,7 +142,7 @@ class ANUIWP_User_List {
 		<select id="<?php echo esc_attr($id) ?>" name="<?php echo esc_attr( $id )?>" style="float: none; margin: 0 0 0 15px;">
 			<option value="view_all"><?php esc_html_e( 'View all users', 'approve-new-user' ); ?></option>
 		<?php foreach ( anuiwp_approve_new_user()->get_valid_statuses() as $status ) : ?>
-			<option value="<?php echo esc_attr( $status ); ?>"<?php selected( $status, $filtered_status ); ?>><?php echo esc_html( $status ); ?></option>
+			<option value="<?php echo esc_attr( $status ); ?>"<?php selected( $status, $filtered_status ); ?>><?php echo esc_html( ucfirst($status) ); ?></option>
 		<?php endforeach; ?>
 		</select>
 		<?php 
@@ -152,7 +152,7 @@ class ANUIWP_User_List {
 		}
 		?>
 		<style>
-			#anu-status-query-submit-top,#anu-status-query-submit-bottom {
+			#anuiwp-status-query-submit-top,#anuiwp-status-query-submit-bottom {
 				float: right;
 				margin: 2px 0 0 5px;
 			}
@@ -204,7 +204,7 @@ class ANUIWP_User_List {
 	}
 
 	private function selected_status() {
-		if(isset($_REQUEST['anu-status-query-submit-bottom']) && !empty($_REQUEST['anu-status-query-submit-bottom']))
+		if(isset($_REQUEST['anuiwp-status-query-submit-bottom']) && !empty($_REQUEST['anuiwp-status-query-submit-bottom']))
 		{
 			return esc_attr(
 				isset($_REQUEST['approve_new_user_filter-bottom']) && !empty($_REQUEST['approve_new_user_filter-bottom']) 
@@ -250,7 +250,7 @@ class ANUIWP_User_List {
 				return;
 			}
 
-			$sendback = remove_query_arg( array( 'approved', 'denied', 'deleted', 'ids', 'approve_new_user_filter', 'approve_new_user_filter2', 'anu-status-query-submit', 'new_role' ), wp_get_referer() );
+			$sendback = remove_query_arg( array( 'approved', 'denied', 'deleted', 'ids', 'approve_new_user_filter', 'approve_new_user_filter2', 'anuiwp-status-query-submit', 'new_role' ), wp_get_referer() );
 			if ( !$sendback ) {
 				$sendback = admin_url( 'users.php' );
 			}
@@ -301,7 +301,7 @@ class ANUIWP_User_List {
 		if ( $user->ID == get_current_user_id() ) {
 			return;
 		}
-		$edit_user_nonce = wp_create_nonce('anu-edit-user-nonce');
+		$edit_user_nonce = wp_create_nonce('anuiwp-edit-user-nonce');
 		$user_status = anuiwp_approve_new_user()->get_user_status( $user->ID );
 		?>
 		<table class="form-table">
@@ -346,7 +346,7 @@ class ANUIWP_User_List {
 		}
 		
         // if ( wp_verify_nonce($nonce) ) {return;}
-		if ( isset( $_POST['anuiwp_edit_user_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['anuiwp_edit_user_wpnonce'] ) ) , 'anu-edit-user-nonce' ) ) {
+		if ( isset( $_POST['anuiwp_edit_user_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['anuiwp_edit_user_wpnonce'] ) ) , 'anuiwp-edit-user-nonce' ) ) {
 			if ( !empty( $_POST['anuiwp_user_status'] ) ) {
 				$new_status = sanitize_text_field( wp_unslash( $_POST['anuiwp_user_status'] ) );
 
