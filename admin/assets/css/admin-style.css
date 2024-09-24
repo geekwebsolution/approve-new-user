@@ -116,12 +116,17 @@ h1.anuiwp-h1 {
 
 /** Input */
 
-.anuiwp-section input,
-.anuiwp-section select {
+.anuiwp-section input:not(.anuiwp-section .wp-editor-container input),
+.anuiwp-section select:not(.anuiwp-section .wp-editor-container input) {
     width: 350px;
     height: 40px;
     border: 1px solid #707070;
     padding-left: 12px;
+}
+
+.anuiwp_content {
+    display: block;
+    width: 100%;
 }
 
 .anuiwp-section .wp-color-result {
