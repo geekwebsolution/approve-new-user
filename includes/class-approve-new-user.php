@@ -28,6 +28,8 @@ class ANUIWP_Approve_New_User_Main {
 
 		$this->load_dependencies();
 		$this->user_list();
+		$this->define_admin_options();
+		$this->define_admin_hooks();
 		$this->define_global_hooks();
 	}
 
@@ -38,11 +40,21 @@ class ANUIWP_Approve_New_User_Main {
 	 */
 	public function load_dependencies() {
 		
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-global-functions.php';// global functions
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-email-tags.php';	    // defining email tags
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-messages.php';	    // defining messages
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-loader.php';	        // actions and filters
+
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/admin-notifications.php';	    // admin notification settings
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/general-settings.php';	    // general settings
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/registration-settings.php';	// registration settings
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/settings/user-notifications.php';	    // user notifications
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-admin-options.php';	    // admin options page actions
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-admin.php';	            // users menu page actions
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/partials/user-list.php';	    // users menu page actions
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-global-hooks.php';	// global hooks
+        require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-memberpress.php';	    // global hooks
 
 		$this->loader = new ANUIWP_Loader();
 	}
@@ -55,6 +67,12 @@ class ANUIWP_Approve_New_User_Main {
 		
 		// Actions
 		$this->loader->add_action( 'load-users.php', $plugin_user_list, 'update_action' );
+		$this->loader->add_action( 'restrict_manage_users', $plugin_user_list, 'status_filter', 10, 1 );
+        
+		$this->loader->add_action( 'pre_user_query', $plugin_user_list, 'filter_by_status' );
+
+        $this->loader->add_action( 'load-users.php', $plugin_user_list, 'bulk_action' );
+
 		$this->loader->add_action( 'show_user_profile', $plugin_user_list, 'profile_status_field' );
 		$this->loader->add_action( 'edit_user_profile', $plugin_user_list, 'profile_status_field' );
 		$this->loader->add_action( 'edit_user_profile_update', $plugin_user_list, 'save_profile_status_field' );
@@ -66,6 +84,62 @@ class ANUIWP_Approve_New_User_Main {
 		$this->loader->add_filter( 'manage_users_custom_column', $plugin_user_list, 'status_column', 10, 3 );
 	}
 
+    /**
+     * Defining admin options
+     */
+    public function define_admin_options() {
+        global $pagenow;
+
+        $general_settings = new ANUIWP_General_Settings_Hooks();
+        $registration_settings = new ANUIWP_Registration_Settings_Hooks();
+        $admin_notifications_settings = new ANUIWP_Admin_Notifications_Settings_Hooks();
+        $user_notifications_settings = new ANUIWP_User_Notifications_Hooks();
+
+        if(isset($pagenow) && $pagenow == 'admin.php' && isset($_GET['page']) && $_GET['page'] == "anuiwp-setting") {
+            $tab = (isset($_GET['tab']) && !empty($_GET['tab'])) ? $_GET['tab'] : null;
+
+            if ($tab === null) {
+                $this->loader->add_action( 'admin_init', $general_settings, 'general_settings' ); // General Settings
+            }
+
+            if ($tab === "anuiwp-registration-settings") {
+                $this->loader->add_action( 'admin_init', $registration_settings, 'registration_settings' ); // Registration Settings
+            }
+
+            if ($tab === "anuiwp-admin-notifications") {
+                $this->loader->add_action( 'admin_init', $admin_notifications_settings, 'admin_notifications_settings' ); // Admin Notifications
+            }
+
+            if ($tab === "anuiwp-user-notifications") {
+                $this->loader->add_action( 'admin_init', $user_notifications_settings, 'user_notifications_settings' ); // User Notifications
+            }
+        }
+
+        $plugin_admin_options_hooks = new ANUIWP_Admin_Options_Hooks( $this->settings );
+        
+        $this->loader->add_action( 'admin_menu', $plugin_admin_options_hooks, 'admin_menu_page' );  // Approve New User Menu Page
+    }
+
+    /**
+     * Defining admin hooks
+     */
+    public function define_admin_hooks() {
+        $plugin_admin_hooks = new ANUIWP_Admin_Hooks( $this->settings );
+
+        $this->loader->add_filter("plugin_action_links_approve-new-user/approve-new-user.php", $plugin_admin_hooks, 'plugin_add_settings_link');
+
+        // Admin init
+        $this->loader->add_action( 'admin_init', $plugin_admin_hooks, 'process_user_data' );
+
+        // Admin screen handled 
+        $this->loader->add_action( 'admin_footer-users.php', $plugin_admin_hooks, 'admin_footer' );
+        $this->loader->add_action( 'admin_notices', $plugin_admin_hooks, 'admin_notices' );
+        $this->loader->add_action( 'rightnow_end', $plugin_admin_hooks, 'dashboard_stats' );
+
+        // Enqueue scripts
+        $this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin_hooks, 'admin_scripts' );
+    }
+
 	/**
 	 * Defining global hooks
 	 */
@@ -74,7 +148,7 @@ class ANUIWP_Approve_New_User_Main {
 
 		// Delete the transient storing all of the user statuses
 		$this->loader->add_action( 'user_register', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 ); 
-		$this->loader->add_action( 'anuiwp__approve_new_user', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 );
+		$this->loader->add_action( 'anuiwp_approve_user', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 );
 		$this->loader->add_action( 'anuiwp_deny_user', $plugin_global_hooks, 'delete_approve_new_user_transient', 11 );
 		$this->loader->add_action( 'deleted_user', $plugin_global_hooks, 'delete_approve_new_user_transient' );
 

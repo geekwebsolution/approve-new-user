@@ -15,17 +15,6 @@ function anuiwp_default_approve_user_message() {
 }
 
 /**
- * The default email message that will be sent to users as they are denied.
- */
-function anuiwp_default_deny_user_message() {
-	$message = __( 'You have been denied access to {sitename}.', 'approve-new-user' );
-
-	$message = apply_filters( 'anuiwp_approve_new_user_deny_user_message_default', $message );
-
-	return $message;
-}
-
-/**
  * The default message that will be shown to the user after registration has completed.
  */
 function anuiwp_default_registration_complete_message() {
@@ -38,12 +27,66 @@ function anuiwp_default_registration_complete_message() {
 	return $message;
 }
 
+/**
+ * The default pending error message
+ */
+function anuiwp_approve_new_user_pending_error() {
+	$message = __( '<strong>ERROR</strong>: Your account is still pending approval.', 'approve-new-user' );
+	$message = apply_filters( 'anuiwp_approve_new_user_pending_error', $message );
+
+	return $message;
+}
+
+/**
+ * The default reject error message
+ */
+function anuiwp_approve_new_user_denied_error() {
+	$message = __( '<strong>ERROR</strong>: Your account has been denied access to this site.', 'approve-new-user' );
+	$message = apply_filters( 'anuiwp_approve_new_user_denied_error', $message );
+
+	return $message;
+}
+
+/**
+ * The approve new user email subject
+ */
+function anuiwp_approve_new_user_subject() {
+	$subject = sprintf( __( '[%s] Registration Approved', 'approve-new-user' ), get_option( 'blogname' ) );
+    $subject = apply_filters( 'anuiwp_approve_new_user_subject', $subject );
+
+	return $subject;
+}
+
+/**
+ * The approve new user email message
+ */
 function anuiwp_auto_approve_message() {
 	$message = sprintf( __( 'You have been approved to access {sitename}. You will receive an email with instructions on what you will need to do next. Thanks for your patience.
 
 	', 'approve-new-user' ) );
 	$message .= ' ';
 	$message = apply_filters( 'anuiwp_approve_new_user_auto_approve_message', $message );
+
+	return $message;
+}
+
+/**
+ * The default email subject that will be sent to users as they are denied.
+ */
+function anuiwp_default_deny_user_subject() {
+	$subject = sprintf( __( '[%s] Registration Denied', 'approve-new-user' ), get_option( 'blogname' ) );
+    $subject = apply_filters( 'anuiwp_approve_new_user_deny_user_subject', $subject );
+
+	return $subject;
+}
+
+/**
+ * The default email message that will be sent to users as they are denied.
+ */
+function anuiwp_default_deny_user_message() {
+	$message = __( 'You have been denied access to {sitename}.', 'approve-new-user' );
+
+	$message = apply_filters( 'anuiwp_approve_new_user_deny_user_message_default', $message );
 
 	return $message;
 }
@@ -60,6 +103,16 @@ function anuiwp_default_welcome_message() {
 }
 
 /**
+ * The default notification subject that is sent to site admin when requesting approval.
+ */
+function anuiwp_default_notification_subject() {
+	$subject = sprintf( __( '[%s] User Approval', 'approve-new-user' ), wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES ) );
+    $subject = apply_filters( 'anuiwp_approve_new_user_request_approval_subject', $subject );
+
+	return $subject;
+}
+
+/**
  * The default notification message that is sent to site admin when requesting approval.
  */
 function anuiwp_default_notification_message() {
@@ -68,7 +121,7 @@ function anuiwp_default_notification_message() {
 	$message .= __( 'To approve or deny this user access to {sitename} go to', 'approve-new-user' ) . "\n\n";
 	$message .= "{admin_approve_url}\n\n";
 
-	$message = apply_filters( 'anuiwp_approve_new_user_notification_message_default', $message );
+	$message = apply_filters( 'anuiwp_approve_new_user_request_approval_message_default', $message );
 
 	return $message;
 }
@@ -83,6 +136,13 @@ function anuiwp_default_registration_message() {
 	$message = apply_filters( 'anuiwp_approve_new_user_registration_message_default', $message );
 
 	return $message;
+}
+
+function anuiwp_default_registeration_welcome_email_subject() {
+    $subject = sprintf( __( 'Your registration is pending for approval - [%s]', 'approve-new-user' ), get_option( 'blogname' ) );
+    $subject = apply_filters( 'anuiwp_approve_new_user_welcome_user_subject', $subject );
+    
+    return $subject;
 }
 
 function anuiwp_default_registeration_welcome_email() {

@@ -176,7 +176,7 @@ function anuiwp_load_email_tags() {
 add_action( 'init', 'anuiwp_load_email_tags', -999 );
 
 /**
- * Add default anu email template tags
+ * Add default anuiwp email template tags
  */
 function anuiwp_setup_email_tags() {
 
