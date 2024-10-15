@@ -8,7 +8,7 @@ class ANUIWP_User_List {
 	 */
 	public function update_action() {
 		if ( isset( $_GET['action'] ) && in_array( $_GET['action'], array( 'approve', 'deny' ) ) && !isset( $_GET['new_role'] ) ) {
-			
+
 			check_admin_referer( 'approve-new-user' );
 
 			$sendback = esc_url( remove_query_arg( array( 'approved', 'denied', 'deleted', 'ids', 'anuiwp-status-query-submit', 'new_role' ), wp_get_referer() ));
@@ -24,16 +24,16 @@ class ANUIWP_User_List {
 			$user   = ( !empty( $_GET['user']  ) ) ? absint( wp_unslash($_GET['user'] ) ) :'';
 
 			anuiwp_approve_new_user()->update_user_status( $user, $status );
-			
+
 			if ( $_GET['action'] == 'approve' ) {
 				$sendback = esc_url( add_query_arg( array( 'approved' => 1, 'ids' => $user ), $sendback )) ;
-				
+
 			} else {
 				$sendback = esc_url( add_query_arg( array( 'denied' => 1, 'ids' => $user ), $sendback ));
 			}
 
 			wp_redirect( $sendback );
-			
+
 			exit;
 		}
 	}
@@ -145,7 +145,7 @@ class ANUIWP_User_List {
 			<option value="<?php echo esc_attr( $status ); ?>"<?php selected( $status, $filtered_status ); ?>><?php echo esc_html( ucfirst($status) ); ?></option>
 		<?php endforeach; ?>
 		</select>
-		<?php 
+		<?php
 		if(!empty($filter_button))
 		{
 			echo wp_kses_post( apply_filters( 'approve_new_user_filter_button', $filter_button ));
@@ -207,7 +207,7 @@ class ANUIWP_User_List {
 		if(isset($_REQUEST['anuiwp-status-query-submit-bottom']) && !empty($_REQUEST['anuiwp-status-query-submit-bottom']))
 		{
 			return esc_attr(
-				isset($_REQUEST['approve_new_user_filter-bottom']) && !empty($_REQUEST['approve_new_user_filter-bottom']) 
+				isset($_REQUEST['approve_new_user_filter-bottom']) && !empty($_REQUEST['approve_new_user_filter-bottom'])
 				? sanitize_text_field( wp_unslash( $_REQUEST['approve_new_user_filter-bottom']))
 				: ''
 			);
@@ -344,7 +344,7 @@ class ANUIWP_User_List {
 		if ( !current_user_can( 'edit_user', $user_id ) ) {
 			return false;
 		}
-		
+
         // if ( wp_verify_nonce($nonce) ) {return;}
 		if ( isset( $_POST['anuiwp_edit_user_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash ( $_POST['anuiwp_edit_user_wpnonce'] ) ) , 'anuiwp-edit-user-nonce' ) ) {
 			if ( !empty( $_POST['anuiwp_user_status'] ) ) {
@@ -370,7 +370,7 @@ class ANUIWP_User_List {
 		$users =get_option( 'anuiwp_user_statuses_count',array());
 		if(empty($users))
 		{
-			$users = anuiwp_approve_new_user()->_get_user_statuses(); 
+			$users = anuiwp_approve_new_user()->_get_user_statuses();
 		}
 
 		// Get the number of pending users
@@ -406,5 +406,14 @@ class ANUIWP_User_List {
 			}
 		}
 		return false;
+	}
+
+	public function deniend_user(){
+		$current_user_id = get_current_user_id();
+
+		$anuiwp_user_status = get_user_meta($current_user_id, 'anuiwp_user_status', true);
+		if($anuiwp_user_status == 'denied'){
+			wp_logout();
+		}
 	}
 }
