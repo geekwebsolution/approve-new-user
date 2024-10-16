@@ -113,7 +113,7 @@ class ANUIWP_Admin_Hooks {
             wp_enqueue_style( 'anuiwp-admin-style', plugins_url( 'assets/css/admin-style.css', __FILE__ ), array(), ANUIWP_VERSION);
 
 			wp_enqueue_editor();
-
+			wp_enqueue_media();
 			wp_enqueue_script( 'anuiwp-admin-script', plugins_url( 'assets/js/admin-script.js', __FILE__ ), array( 'jquery' ), ANUIWP_VERSION );
         }
     }
