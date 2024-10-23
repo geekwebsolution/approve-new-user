@@ -233,10 +233,10 @@ function anuiwp_setup_email_tags() {
 	);
 
 	// Apply anuiwp_email_tags filter
-	$email_tags = apply_filters( 'anuiwp_email_tags', $email_tags );
+	$email_taged = apply_filters( 'anuiwp_email_tags', $email_tags );
 
 	// Add email tags
-	foreach ( $email_tags as $email_tag ) {
+	foreach ( $email_taged as $email_tag ) {
 		anuiwp_add_email_tag( $email_tag['tag'], $email_tag['description'], $email_tag['function'], $email_tag['context'] );
 	}
 
@@ -247,9 +247,8 @@ add_action( 'anuiwp_add_email_tags', 'anuiwp_setup_email_tags' );
  * Email template tag: username
  * The user's user name on the site
  */
-function anuiwp_email_tag_username( $attributes ) {
+function anuiwp_email_tag_username( $attributes) {
 	$username = $attributes['user_login'];
-	/* translators: %s: search term */
 	return sprintf( __( 'Username: %s', 'approve-new-user' ), $username );
 }
 

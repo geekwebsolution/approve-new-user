@@ -69,8 +69,8 @@ class ANUIWP_Approve_New_User
     public static function instance()
     {
         $settings = array(
-            'plugin_name' => 'approve-new-user',
-            'version' => ANUIWP_VERSION,
+            'plugin_name'    => 'approve-new-user',
+            'version'        => ANUIWP_VERSION,
             'get_plugin_url' => plugin_dir_url(__FILE__),
             'get_plugin_dir' => plugin_dir_path(__FILE__)
         );

@@ -73,7 +73,7 @@ class ANUIWP_Approve_New_User_Main {
 
         $this->loader->add_action( 'load-users.php', $plugin_user_list, 'bulk_action' );
 
-        $this->loader->add_action( 'init', $plugin_user_list, 'deniend_user' );
+		// $this->loader->add_action( 'init', $plugin_user_list, 'deniend_user' );
 
 		$this->loader->add_action( 'show_user_profile', $plugin_user_list, 'profile_status_field' );
 		$this->loader->add_action( 'edit_user_profile', $plugin_user_list, 'profile_status_field' );
@@ -247,7 +247,6 @@ class ANUIWP_Approve_New_User_Main {
 	// updated function for user count fix
     public function _get_user_statuses($count = true) {
         global $wpdb;
-
         $statuses = array();
 
         foreach ( $this->get_valid_statuses() as $status ) {
@@ -262,9 +261,16 @@ class ANUIWP_Approve_New_User_Main {
                 $user_query = new WP_User_Query( array(
                     'meta_key' => 'anuiwp_user_status',
                     'meta_value' => $status,
-                ) );
-
+                    ) );
                 $statuses[$status] = $user_query->get_results();
+
+                if(!empty($statuses['denied'])){
+                    $user_id  = $statuses[$status][0]->ID;
+
+                    // echo '<pre>'; print_r( $statuses[$status] ); echo '</pre>';
+                    // $statuses[$status] = array();
+                    // echo '<pre>'; print_r( $statuses[$status] ); echo '</pre>';
+                }
             }
         }
         return $statuses;
@@ -273,7 +279,7 @@ class ANUIWP_Approve_New_User_Main {
 	/**
      * Get a list of statuses with a count of users using WPQuery not transient
      */
-    public function _get_users_by_status( $count = true, $status="" )
+    public function _get_users_by_status( $count = true, $status = "" )
     {
         $paged = isset($_REQUEST['paged'] ) && !empty($_REQUEST['paged'] ) ? absint($_REQUEST['paged'])  : 1;
 
@@ -288,7 +294,7 @@ class ANUIWP_Approve_New_User_Main {
                     'meta_value'  => $status,
                     'count_total' => true,
                     'number'      => 15,
-                    'paged'       =>$paged,
+                    'paged'       => $paged,
                 );
             } else {
 
@@ -297,30 +303,28 @@ class ANUIWP_Approve_New_User_Main {
                     'meta_query'  => array(
                     'relation' => 'OR',
                     array(
-                    'key'     => 'anuiwp_user_status',
-                    'value'   => 'approved',
-                    'compare' => '=',
-                ),
+                        'key'     => 'anuiwp_user_status',
+                        'value'   => 'approved',
+                        'compare' => '=',
+                    ),
                     array(
-                    'key'     => 'anuiwp_user_status',
-                    'value'   => '',
-                    'compare' => 'NOT EXISTS',
+                        'key'     => 'anuiwp_user_status',
+                        'value'   => '',
+                        'compare' => 'NOT EXISTS',
+                    ),
                 ),
-                ),
-                    'count_total' => true,
-                    'number'      => 15,
-                    'paged'       =>$paged,
+                'count_total' => true,
+                'number'      => 15,
+                'paged'       =>$paged,
                 );
             }
 
             $wp_user_search = new WP_User_Query( $query );
-
             if ( $count === true ) {
                 $statuses[$status] = $wp_user_search->get_total();
             } else {
                 $statuses[$status] = $wp_user_search->get_results();
             }
-
         }
         return $statuses;
     }
@@ -335,7 +339,6 @@ class ANUIWP_Approve_New_User_Main {
             $user_statuses = $this->_get_user_statuses();
             update_option('anuiwp_user_statuses_count',$user_statuses );
         }
-
         return $user_statuses;
     }
 
@@ -345,11 +348,11 @@ class ANUIWP_Approve_New_User_Main {
      */
     public function update_users_statuses_count($new_status,$user_id)
     {
-        $old_status=get_user_meta( $user_id, 'anuiwp_user_status',true);
-
-        if( $old_status ==$new_status ){return;}
+        $old_status = get_user_meta( $user_id, 'anuiwp_user_status',true);
+        if( $old_status == $new_status ){return;}
 
         $user_statuses = get_option( 'anuiwp_user_statuses_count',array());
+
         if(empty($user_statuses))
         {
             $user_statuses = $this->_get_user_statuses();
@@ -359,14 +362,14 @@ class ANUIWP_Approve_New_User_Main {
 
             if(isset($user_statuses[$status]) && $old_status == $status)
             {
-                $count=$user_statuses[$status];
-                $user_statuses[$status]=$count-1;
-            }elseif(isset($user_statuses[$status]) && $new_status == $status)
-            {
+                $count = $user_statuses[$status];
+                $user_statuses[$status] = $count-1;
+            }elseif(isset($user_statuses[$status]) && $new_status == $status){
                 $count=$user_statuses[$status];
                 $user_statuses[$status]=$count+1;
             }
         }
         update_option( 'anuiwp_user_statuses_count', $user_statuses);
+
     }
 }

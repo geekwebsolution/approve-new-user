@@ -21,7 +21,7 @@ class ANUIWP_User_List {
 			$sendback = esc_url( add_query_arg( 'paged', $pagenum, $sendback ));
 
 			$status = ( !empty( $_GET['action']) ) ? sanitize_key( $_GET['action'] ): '';
-			$user   = ( !empty( $_GET['user']  ) ) ? absint( wp_unslash($_GET['user'] ) ) :'';
+			$user   = ( !empty( $_GET['user']  ) ) ? absint( wp_unslash($_GET['user'] ) ) : '';
 
 			anuiwp_approve_new_user()->update_user_status( $user, $status );
 
@@ -119,7 +119,6 @@ class ANUIWP_User_List {
 				}
 				return $status_i18n;
 				break;
-
 			default:
 		}
 
@@ -211,8 +210,7 @@ class ANUIWP_User_List {
 				? sanitize_text_field( wp_unslash( $_REQUEST['approve_new_user_filter-bottom']))
 				: ''
 			);
-		}
-		elseif( isset( $_REQUEST['approve_new_user_filter-top'] ) &&  !empty( $_REQUEST['approve_new_user_filter-bottom'] ) ) {
+		}elseif( isset( $_REQUEST['approve_new_user_filter-top'] ) && !empty( $_REQUEST['approve_new_user_filter-bottom'] ) ) {
 			return esc_attr(  sanitize_text_field( wp_unslash( $_REQUEST['approve_new_user_filter-top'])) );
 		}
 
@@ -408,12 +406,12 @@ class ANUIWP_User_List {
 		return false;
 	}
 
-	public function deniend_user(){
-		$current_user_id = get_current_user_id();
+	// public function deniend_user(){
+	// 	$current_user_id = get_current_user_id();
 
-		$anuiwp_user_status = get_user_meta($current_user_id, 'anuiwp_user_status', true);
-		if($anuiwp_user_status == 'denied'){
-			wp_logout();
-		}
-	}
+	// 	$anuiwp_user_status = get_user_meta($current_user_id, 'anuiwp_user_status', true);
+	// 	if($anuiwp_user_status == 'denied'){
+	// 		wp_logout();
+	// 	}
+	// }
 }

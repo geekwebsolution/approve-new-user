@@ -1,7 +1,7 @@
 <?php
 class ANUIWP_User_Notifications_Hooks {
 
-	public function __construct(){       
+	public function __construct(){
 		add_action('admin_init', array($this, 'user_notifications_settings'));
 	}
 
@@ -52,7 +52,7 @@ class ANUIWP_User_Notifications_Hooks {
 				'label_for' => 'user_approve_notification_subject',
 			]
 		);
-		
+
 		add_settings_field(
 			'user_approve_notification_message',
 			__('Approve notification message', 'approve-new-user'),
@@ -93,7 +93,7 @@ class ANUIWP_User_Notifications_Hooks {
 				'label_for' => 'user_deny_notification_subject',
 			]
 		);
-		
+
 		add_settings_field(
 			'user_deny_notification_message',
 			__('Deny notification message', 'approve-new-user'),
@@ -134,7 +134,7 @@ class ANUIWP_User_Notifications_Hooks {
 				'label_for' => 'user_welcome_notification_subject',
 			]
 		);
-		
+
 		add_settings_field(
 			'user_welcome_notification_message',
 			__('Welcome notification message', 'approve-new-user'),
@@ -201,10 +201,10 @@ class ANUIWP_User_Notifications_Hooks {
 		<p class="anuiwp-input-note"><strong>{password}</strong> - <?php esc_html_e("Generates the password for the user to add to the email","approve-new-user"); ?></p>
 		<?php
 	}
-	
+
 	public function user_welcome_notification_message_html($args){
 		$anuiwp_user_notifications_options = anuiwp_user_notifications_options();
-		
+
 		$value = isset($anuiwp_user_notifications_options[$args['label_for']]) ? $anuiwp_user_notifications_options[$args['label_for']] : '';
 		?>
 		<textarea name="anuiwp_user_notifications_options[<?php esc_attr_e( $args['label_for'] ); ?>]" id="<?php esc_attr_e( $args['label_for'] ); ?>" class="anuiwp_content"><?php echo wp_unslash($value); ?></textarea>

@@ -24,11 +24,11 @@ class ANUIWP_New_Users_List extends WP_List_Table {
         }
 
         $user_ID = $item->data->ID;
-        
+
         switch($column_name){
             case 'user_login':
                 $avatar = get_avatar($item->data->ID, 32);
-                
+
                 if ($current_user->ID == $user_ID) {
                     $edit_link = 'profile.php';
                 } else {
@@ -42,7 +42,7 @@ class ANUIWP_New_Users_List extends WP_List_Table {
                 echo wp_kses_post($avatar . ' ' . $edit);
                 break;
             case 'display_name':
-                echo (esc_attr(get_user_meta($user_ID, 'first_name', true)) . ' ' . esc_attr(get_user_meta($user_ID, 'last_name', true)));                
+                echo (esc_attr(get_user_meta($user_ID, 'first_name', true)) . ' ' . esc_attr(get_user_meta($user_ID, 'last_name', true)));
                 break;
             case 'user_email':
                 echo sprintf('<a href="mailto:%s" title="%s">%s</a>', esc_attr($item->data->user_email), esc_attr('email:', 'approve-new-user') . esc_attr($item->data->user_email), esc_attr($item->data->user_email));
@@ -71,14 +71,14 @@ class ANUIWP_New_Users_List extends WP_List_Table {
 
                 if ($approve && $user_ID != get_current_user_id()) {?>
                     <span><a class="button approve-btn" href= "<?php echo esc_url($approve_link) ?>" title="<?php esc_attr_e('Approve', 'approve-new-user');?> <?php esc_attr_e($item->data->user_login);?>"><?php esc_html_e('Approve', 'approve-new-user');?></a> </span>
-                <?php }?>
+                <?php } ?>
 
                 <?php if ($deny && $user_ID != get_current_user_id()) {?>
                     <span><a class="button deny-btn" href="<?php echo esc_url($deny_link); ?>" title="<?php esc_attr_e('Deny', 'approve-new-user');?> <?php esc_attr_e($item->data->user_login);?>"><?php echo esc_html('Deny', 'approve-new-user'); ?></a></span>
                 <?php }
                 break;
             default:
-                return print_r($item,true); 
+                return print_r($item,true);
         }
     }
 
@@ -100,7 +100,7 @@ class ANUIWP_New_Users_List extends WP_List_Table {
         return $sortable_columns;
     }
 
-    /** 
+    /**
      * Table that shows registered users grouped by status
      */
     public function users_list_data() {
@@ -129,7 +129,7 @@ class ANUIWP_New_Users_List extends WP_List_Table {
 			$searchTerm = sanitize_text_field($_GET['anuiwp_search_box']);
 
 			$filterFunction = function ($users ) use ($searchTerm) {
-		 
+
 				$usernameMatches = stripos($users->user_login, $searchTerm) !== false;
 				$emailMatches = stripos($users->user_email, $searchTerm) !== false;
 				$firstNameMatches = stripos($users->first_name, $searchTerm) !== false;
@@ -144,30 +144,27 @@ class ANUIWP_New_Users_List extends WP_List_Table {
         {
             $users = anuiwp_approve_new_user()->_get_users_by_status(false,$status);
         }
-
         return $users;
     }
 
+
     /** Wp Table Initialization */
     function prepare_items() {
-
         $per_page = 15;
-
         $columns = $this->get_columns();
         $hidden = array();
         $sortable = $this->get_sortable_columns();
-        
         $this->_column_headers = array($columns, $hidden, $sortable);
         $users_list_data = $this->users_list_data();
-        
-        $current_page = $this->get_pagenum();        
-        $total_items = count($users_list_data);        
-        $users_list_data = array_slice($users_list_data,(($current_page-1)*$per_page),$per_page);
 
+        $current_page = $this->get_pagenum();
+        $total_items = count($users_list_data);
+
+        $users_list_data = array_slice($users_list_data,(($current_page-1)*$per_page),$per_page);
         $this->items = $users_list_data;
         $this->set_pagination_args( array(
             'total_items' => $total_items,
-            'per_page'    => $per_page,  
+            'per_page'    => $per_page,
             'total_pages' => ceil($total_items/$per_page)
         ) );
     }
@@ -208,7 +205,7 @@ $search_query = isset($_GET['anuiwp_search_box']) ? sanitize_text_field($_GET['a
 
                     <form id="anuiwp-users-list" method="get">
                         <input type="hidden" name="page" value="<?php _e($_REQUEST['page']); ?>" />
-                        <?php 
+                        <?php
                             $usersListTable = new ANUIWP_New_Users_List();
                             $usersListTable->prepare_items();
                             $usersListTable->display();
