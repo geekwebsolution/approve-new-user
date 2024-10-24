@@ -298,7 +298,7 @@ function anuiwp_email_tag_loginurl( $attributes ) {
  */
 function anuiwp_email_tag_password( $attributes ) {
 	$context = $attributes['context'];
-	if($context == 'approve_user'){
+	if($context == 'approve_user'){ // When User Status Approved
 		$user = $attributes['user'];
 		if ( $user->ID ) {
 			// reset password to know what to send the user
