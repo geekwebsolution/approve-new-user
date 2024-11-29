@@ -15,6 +15,25 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
+define("ANUIWP_BUILD", "3.4.8");
+
+if (!defined("ANUIWP_PLUGIN_DIR_PATH"))
+	define("ANUIWP_PLUGIN_DIR_PATH", plugin_dir_path(__FILE__));
+
+if (!defined("ANUIWP_PLUGIN_URL"))
+	define("ANUIWP_PLUGIN_URL", plugins_url() . '/' . basename(dirname(__FILE__)));
+
+if (!defined("ANUIWP_PLUGIN_DIR"))
+	define("ANUIWP_PLUGIN_DIR", plugin_basename(__DIR__));
+
+if (!defined("ANUIWP_PLUGIN_BASENAME"))
+	define("ANUIWP_PLUGIN_BASENAME", plugin_basename(__FILE__));
+if ( ! defined( 'ANUIWP_PLUGIN_DIR_PATH' ) ) {
+	define('ANUIWP_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
+}
+
+
+
 /**
  * Currently plugin version.
  */
@@ -25,17 +44,20 @@ define( 'ANUIWP_VERSION', '1.0.2' );
  * This action is documented in includes/class-activator.php
  */
 function anuiwp_activation_hook() {
+    anuiwp_updater_activate();
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-activator.php';
 	ANUIWP_Activator::activate();
 }
 
 register_activation_hook( __FILE__, 'anuiwp_activation_hook' );
+add_action('upgrader_process_complete', 'anuiwp_updater_activate'); // remove  transient  on plugin  update
 
 /**
  * The core plugin class that is used to define admin-specific hooks, and public-facing site hooks.
  */
 require plugin_dir_path( __FILE__ ) . 'includes/class-approve-new-user.php';
 
+require (ANUIWP_PLUGIN_DIR_PATH .'updater/updater.php');
 /**
  * Begins execution of the plugin.
  *
