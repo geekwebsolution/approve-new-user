@@ -15,8 +15,6 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-define("ANUIWP_BUILD", "3.4.8");
-
 if (!defined("ANUIWP_PLUGIN_DIR_PATH"))
 	define("ANUIWP_PLUGIN_DIR_PATH", plugin_dir_path(__FILE__));
 

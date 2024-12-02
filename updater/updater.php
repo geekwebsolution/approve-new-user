@@ -11,7 +11,7 @@ function anuiwp_updater_utility() {
         'prefix' => $prefix,
         'get_base' => ANUIWP_PLUGIN_BASENAME,
         'get_slug' => ANUIWP_PLUGIN_DIR,
-        'get_version' => ANUIWP_BUILD,
+        'get_version' => ANUIWP_VERSION,
         'get_api' => 'https://download.geekcodelab.com/',
         'license_update_class' => $prefix . 'Update_Checker'
     ];
