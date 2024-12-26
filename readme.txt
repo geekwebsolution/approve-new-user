@@ -5,7 +5,7 @@ Tags: comments, spam
 Requires PHP: 7.4
 Requires at least: 6.3
 Tested up to: 6.6.1
-Stable tag: 1.0.2
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -106,6 +106,10 @@ After Plugin Active go to WooCommerce-> Donation.
 
 
 == Changelog ==
+= 1.2.0 =
+ Bug Fixed
+ Added updater  function
+ 
 = 1.0.2 =
  New Features Added
 

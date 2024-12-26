@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Approve New User
  * Description:       Approve New User plugin automates the user registration process on your WordPress website.
- * Version:           1.0.2
+ * Version:           1.2.0
  * Author:            Geek Code Lab
  * Author URI:        https://geekcodelab.com/
  * License:           GPLv2 or later
@@ -35,7 +35,7 @@ if ( ! defined( 'ANUIWP_PLUGIN_DIR_PATH' ) ) {
 /**
  * Currently plugin version.
  */
-define( 'ANUIWP_VERSION', '1.0.2' );
+define( 'ANUIWP_VERSION', '1.2.0' );
 
 /**
  * The code that runs during plugin activation.

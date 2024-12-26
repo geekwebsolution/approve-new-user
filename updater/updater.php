@@ -19,7 +19,6 @@ function anuiwp_updater_utility() {
     return $settings;
 }
 
-// register_activation_hook(__FILE__, 'anuiwp_updater_activate');
 function anuiwp_updater_activate() {
 
     // Refresh transients
